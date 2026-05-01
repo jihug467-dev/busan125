@@ -3,126 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Grand Slam Master - Pro v4</title>
+    <title>Grand Slam Master v1.0</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
         :root { --p: #072754; --a: #d31145; --bg: #f4f7f6; }
         body { font-family: 'Pretendard', sans-serif; background: var(--bg); margin: 0; padding-bottom: 70px; }
         .hidden { display: none !important; }
         .card { background: white; padding: 15px; border-radius: 12px; margin: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }
         header { background: var(--p); color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
-        
-        /* 메뉴 & UI */
         .side-menu { position: fixed; top: 0; left: -280px; width: 280px; height: 100%; background: white; z-index: 200; transition: 0.3s; box-shadow: 2px 0 10px rgba(0,0,0,0.1); }
         .side-menu.active { left: 0; }
         .menu-item { padding: 15px 20px; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 10px; cursor: pointer; }
         .nav { position: fixed; bottom: 0; width: 100%; height: 60px; background: white; display: flex; border-top: 1px solid #ddd; z-index: 150; }
         .nav-item { flex: 1; text-align: center; padding-top: 10px; color: #999; font-size: 11px; cursor: pointer; }
         .nav-item.active { color: var(--p); }
-
-        /* 게시판 & 기록 */
-        .post { border-bottom: 1px solid #eee; padding: 10px 0; position: relative; }
-        .stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .post { border-bottom: 1px solid #eee; padding: 10px 0; }
         .btn-p { background: var(--p); color: white; border: none; padding: 10px; border-radius: 8px; width: 100%; font-weight: bold; cursor: pointer; margin-top: 5px; }
         input, select, textarea { width: 100%; padding: 10px; margin: 5px 0; border: 1px solid #ddd; border-radius: 8px; box-sizing: border-box; }
-        .logo-preview { width: 60px; height: 60px; border-radius: 50%; background: #eee; object-fit: cover; border: 2px solid var(--p); }
+        .logo-img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background: #eee; }
     </style>
 </head>
 <body>
 
+<!-- 헤더 -->
+<header id="appHeader">
+    <span class="material-icons" onclick="toggleMenu()">menu</span>
+    <div style="display:flex; align-items:center; gap:10px;">
+        <img id="teamLogo" class="logo-img" src="">
+        <span id="teamNameDisp">로딩 중...</span>
+    </div>
+    <span class="material-icons" onclick="location.reload()">refresh</span>
+</header>
+
 <!-- 사이드 메뉴 -->
 <div id="sideMenu" class="side-menu">
-    <div style="padding:20px; background:var(--p); color:white;"><b>MENU</b></div>
-    <div class="menu-item" onclick="showSec('players')"><span class="material-icons">groups</span> 선수 명단</div>
+    <div style="padding:20px; background:var(--p); color:white;"><b>야구단 메뉴</b></div>
+    <div class="menu-item" onclick="showSec('board')"><span class="material-icons">forum</span> 팀 게시판</div>
+    <div class="menu-item" onclick="showSec('stats')"><span class="material-icons">analytics</span> 개인 기록실</div>
     <div class="menu-item mgr-ui hidden" onclick="showSec('approval')"><span class="material-icons">how_to_reg</span> 가입 승인 관리</div>
-    <div class="menu-item" onclick="showSec('stats')"><span class="material-icons">assessment</span> 개인 기록실</div>
-    <div class="menu-item" onclick="showSec('profile')"><span class="material-icons">settings</span> 팀 설정 / 프로필</div>
+    <div class="menu-item" onclick="showSec('settings')"><span class="material-icons">settings</span> 팀 설정</div>
     <div class="menu-item" style="color:red" onclick="handleLogout()"><span class="material-icons">logout</span> 로그아웃</div>
 </div>
 
-<header id="appHeader" class="hidden">
-    <span class="material-icons" onclick="toggleMenu()">menu</span>
-    <div style="display:flex; align-items:center; gap:10px;">
-        <img id="header-logo" class="logo-preview" style="width:30px; height:30px; border:none;">
-        <span id="headerTitle">TEAM</span>
-    </div>
-    <span class="material-icons" onclick="showSec('board')">dashboard</span>
-</header>
-
-<!-- 메인 앱 섹션 -->
-<div id="page-main" class="hidden">
-    
-    <!-- 게시판 섹션 -->
+<div id="main-content">
+    <!-- 1. 게시판 -->
     <section id="sec-board" class="app-sec">
         <div class="card">
-            <h3>📝 팀 게시판</h3>
-            <textarea id="board-input" placeholder="오늘의 훈련 내용이나 소식을 남기세요!"></textarea>
+            <h3>📝 팀 공지 및 게시판</h3>
+            <textarea id="postInput" placeholder="팀원들과 나누고 싶은 이야기를 적어보세요."></textarea>
             <button class="btn-p" onclick="savePost()">글 올리기</button>
-            <div id="board-list" style="margin-top:15px;"></div>
+            <div id="postList" style="margin-top:20px;"></div>
         </div>
     </section>
 
-    <!-- 가입 승인 관리 (감독 전용) -->
+    <!-- 2. 가입 승인 (감독 전용) -->
     <section id="sec-approval" class="app-sec hidden">
         <div class="card">
-            <h3 style="color:var(--a)">🚩 가입 신청 목록</h3>
-            <div id="approval-list"></div>
+            <h3 style="color:var(--a)">🚩 가입 승인 대기 명단</h3>
+            <div id="approvalList"></div>
         </div>
     </section>
 
-    <!-- 개인 기록실 (투수/타자) -->
+    <!-- 3. 개인 기록 (투타) -->
     <section id="sec-stats" class="app-sec hidden">
         <div class="card">
-            <h3>📊 내 성적표</h3>
-            <div class="stat-grid">
-                <div style="border-right: 1px solid #eee; padding-right:10px;">
-                    <p><b>[타자 성적]</b></p>
-                    <small>타율: <span id="st-avg">0.000</span></small><br>
-                    <small>홈런: <span id="st-hr">0</span></small>
+            <h3>📊 내 시즌 기록</h3>
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px; text-align:center;">
+                <div style="background:#f9f9f9; padding:10px; border-radius:8px;">
+                    <p><b>타자 기록</b></p>
+                    <div id="hitterStats">타율: -.--- / 홈런: 0</div>
                 </div>
-                <div style="padding-left:10px;">
-                    <p><b>[투수 성적]</b></p>
-                    <small>방어율: <span id="st-era">0.00</span></small><br>
-                    <small>승리: <span id="st-w">0</span></small>
+                <div style="background:#f9f9f9; padding:10px; border-radius:8px;">
+                    <p><b>투수 기록</b></p>
+                    <div id="pitcherStats">방어율: --.-- / 승리: 0</div>
                 </div>
-            </div>
-            <div class="mgr-ui hidden">
-                <hr>
-                <select id="stat-p-select"><option>선수 선택</option></select>
-                <input type="number" id="in-avg" step="0.001" placeholder="타율">
-                <input type="number" id="in-era" step="0.01" placeholder="방어율">
-                <button class="btn-p" onclick="saveStats()">성적 업데이트</button>
             </div>
         </div>
     </section>
 
-    <!-- 팀 설정 (로고/탈퇴) -->
-    <section id="sec-profile" class="app-sec hidden">
+    <!-- 4. 팀 설정 (로고 등록 등) -->
+    <section id="sec-settings" class="app-sec hidden">
         <div class="card">
-            <h3>⚙️ 팀 및 프로필 설정</h3>
+            <h3>⚙️ 팀 설정</h3>
             <div class="mgr-ui hidden">
-                <p>팀 로고 URL (이미지 주소)</p>
-                <input type="text" id="logo-url-input" placeholder="https://...">
-                <button class="btn-p" onclick="saveLogo()">로고 변경</button>
+                <p>팀 로고 이미지 URL</p>
+                <input type="text" id="logoUrlInput" placeholder="이미지 주소를 입력하세요">
+                <button class="btn-p" onclick="updateLogo()">로고 변경</button>
             </div>
             <hr>
-            <button class="btn-p" style="background:#666;" onclick="withdraw()">회원 탈퇴</button>
+            <p>프로필 관리</p>
+            <button class="btn-p" style="background:#666;" onclick="location.reload()">정보 새로고침</button>
         </div>
     </section>
-
-    <nav class="nav">
-        <div class="nav-item" onclick="showSec('board')"><span class="material-icons">forum</span>게시판</div>
-        <div class="nav-item" onclick="showSec('stats')"><span class="material-icons">analytics</span>기록</div>
-        <div class="nav-item active" onclick="toggleMenu()"><span class="material-icons">menu</span>메뉴</div>
-    </nav>
 </div>
 
-<!-- (로그인 코드는 이전과 동일하므로 생략하거나 기존 것 사용, 아래 스크립트에 핵심 로직 추가) -->
+<!-- 하단바 -->
+<nav class="nav">
+    <div class="nav-item" onclick="showSec('board')"><span class="material-icons">forum</span>게시판</div>
+    <div class="nav-item" onclick="showSec('stats')"><span class="material-icons">analytics</span>기록</div>
+    <div class="nav-item" onclick="toggleMenu()"><span class="material-icons">menu</span>메뉴</div>
+</nav>
+
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, doc, setDoc, getDoc, collection, query, where, getDocs, onSnapshot, updateDoc, deleteDoc, addDoc, orderBy } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged, signOut, deleteUser } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, addDoc, query, where, orderBy, onSnapshot, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyCio2QRCCR5RhnA6l-pnNzMQ8cWKO0Z1Dg",
@@ -138,102 +123,100 @@
     const auth = getAuth(app);
     let userData = null;
 
+    // 로그인 감지 및 정보 로드
     onAuthStateChanged(auth, async (user) => {
-        if(user) {
-            const udoc = await getDoc(doc(db, "users", user.uid));
-            userData = udoc.data();
-            if(!userData.approved) { alert("승인 대기 중!"); signOut(auth); return; }
-            
-            document.getElementById('page-main').classList.remove('hidden');
-            document.getElementById('appHeader').classList.remove('hidden');
-            document.getElementById('headerTitle').innerText = userData.teamName;
-            
-            if(userData.role === 'manager') {
-                document.querySelectorAll('.mgr-ui').forEach(el => el.classList.remove('hidden'));
-                loadApprovalList();
+        if (user) {
+            const userRef = doc(db, "users", user.uid);
+            const uSnap = await getDoc(userRef);
+            if(uSnap.exists()) {
+                userData = uSnap.data();
+                document.getElementById('teamNameDisp').innerText = userData.teamName;
+                if(userData.role === 'manager') {
+                    document.querySelectorAll('.mgr-ui').forEach(e => e.classList.remove('hidden'));
+                    loadApprovalList();
+                }
+                loadPosts();
+                loadTeamInfo();
+                loadStats();
             }
-            loadBoard();
-            loadTeamLogo();
-            loadMyStats();
         } else {
-            // 로그인 페이지 이동 로직 (생략)
+            // 로그인 페이지가 없으면 일단 로딩 중지
+            console.log("로그인이 필요합니다.");
         }
     });
 
-    // --- 가입 승인 로직 ---
+    // 가입 승인 관리
     function loadApprovalList() {
-        const q = query(collection(db, "users"), where("mgrId", "==", auth.currentUser.uid), where("approved", "==", false));
-        onSnapshot(q, (qs) => {
-            const list = document.getElementById('approval-list');
-            list.innerHTML = qs.empty ? "신청자가 없습니다." : "";
-            qs.forEach(uDoc => {
-                const p = uDoc.data();
-                const d = document.createElement('div');
-                d.className = "post";
-                d.innerHTML = `<span>${p.email}</span> <button onclick="approveUser('${uDoc.id}')">승인</button>`;
-                list.appendChild(d);
-            });
-        });
-    }
-    window.approveUser = async (uid) => { await updateDoc(doc(db, "users", uid), { approved: true }); alert("승인 완료!"); };
-
-    // --- 로고 관리 ---
-    window.saveLogo = async () => {
-        const url = document.getElementById('logo-url-input').value;
-        await setDoc(doc(db, "teams", userData.teamName), { logo: url }, { merge: true });
-        alert("로고 적용 완료!");
-    };
-    function loadTeamLogo() {
-        onSnapshot(doc(db, "teams", userData.teamName), (d) => {
-            if(d.exists() && d.data().logo) document.getElementById('header-logo').src = d.data().logo;
-        });
-    }
-
-    // --- 게시판 ---
-    window.savePost = async () => {
-        const text = document.getElementById('board-input').value;
-        await addDoc(collection(db, "boards"), {
-            team: userData.teamName, text, user: userData.email, time: Date.now()
-        });
-        document.getElementById('board-input').value = "";
-    };
-    function loadBoard() {
-        const q = query(collection(db, "boards"), where("team", "==", userData.teamName), orderBy("time", "desc"));
-        onSnapshot(q, (qs) => {
-            const list = document.getElementById('board-list');
+        const q = query(collection(db, "users"), where("teamName", "==", userData.teamName), where("approved", "==", false));
+        onSnapshot(q, (snaps) => {
+            const list = document.getElementById('approvalList');
             list.innerHTML = "";
-            qs.forEach(d => {
-                const post = d.data();
-                list.innerHTML += `<div class="post"><b>${post.user.split('@')[0]}</b>: ${post.text}</div>`;
+            snaps.forEach(d => {
+                const p = d.data();
+                list.innerHTML += `<div class="post" style="display:flex; justify-content:space-between; align-items:center;">
+                    <span>${p.email}</span>
+                    <button class="btn-p" style="width:auto; padding:5px 10px;" onclick="approveUser('${d.id}')">승인</button>
+                </div>`;
+            });
+        });
+    }
+    window.approveUser = async (id) => {
+        await updateDoc(doc(db, "users", id), { approved: true });
+        alert("승인되었습니다!");
+    };
+
+    // 팀 로고 및 이름 정보
+    window.updateLogo = async () => {
+        const url = document.getElementById('logoUrlInput').value;
+        await setDoc(doc(db, "teams", userData.teamName), { logo: url }, { merge: true });
+        alert("팀 로고가 업데이트되었습니다!");
+    };
+    function loadTeamInfo() {
+        onSnapshot(doc(db, "teams", userData.teamName), (d) => {
+            if(d.exists() && d.data().logo) document.getElementById('teamLogo').src = d.data().logo;
+        });
+    }
+
+    // 게시판 기능
+    window.savePost = async () => {
+        const text = document.getElementById('postInput').value;
+        if(!text) return;
+        await addDoc(collection(db, "posts"), {
+            team: userData.teamName,
+            writer: userData.email.split('@')[0],
+            content: text,
+            createdAt: Date.now()
+        });
+        document.getElementById('postInput').value = "";
+    };
+    function loadPosts() {
+        const q = query(collection(db, "posts"), where("team", "==", userData.teamName), orderBy("createdAt", "desc"));
+        onSnapshot(q, (snaps) => {
+            const list = document.getElementById('postList');
+            list.innerHTML = "";
+            snaps.forEach(d => {
+                const p = d.data();
+                list.innerHTML += `<div class="post"><b>${p.writer}</b>: ${p.content}</div>`;
             });
         });
     }
 
-    // --- 기록 관리 ---
-    async function loadMyStats() {
-        const d = await getDoc(doc(db, "stats", auth.currentUser.uid));
-        if(d.exists()) {
-            const s = d.data();
-            document.getElementById('st-avg').innerText = s.avg || "0.000";
-            document.getElementById('st-era').innerText = s.era || "0.00";
+    // 개인 기록 로드
+    async function loadStats() {
+        const sSnap = await getDoc(doc(db, "stats", auth.currentUser.uid));
+        if(sSnap.exists()) {
+            const s = sSnap.data();
+            document.getElementById('hitterStats').innerHTML = `타율: ${s.avg || '.000'} / 홈런: ${s.hr || 0}`;
+            document.getElementById('pitcherStats').innerHTML = `방어율: ${s.era || '0.00'} / 승리: ${s.w || 0}`;
         }
     }
-    window.saveStats = async () => { /* 감독이 선택한 선수 UID에 성적 저장 로직 */ alert("준비 중 기능입니다."); };
 
-    // --- 탈퇴 ---
-    window.withdraw = async () => {
-        if(confirm("정말 탈퇴하시겠습니까? 데이터가 삭제됩니다.")) {
-            await deleteDoc(doc(db, "users", auth.currentUser.uid));
-            await deleteUser(auth.currentUser);
-            location.reload();
-        }
-    };
-
+    // UI 제어
     window.toggleMenu = () => document.getElementById('sideMenu').classList.toggle('active');
     window.showSec = (id) => {
         document.querySelectorAll('.app-sec').forEach(s => s.classList.add('hidden'));
         document.getElementById('sec-' + id).classList.remove('hidden');
-        toggleMenu();
+        if(document.getElementById('sideMenu').classList.contains('active')) toggleMenu();
     };
     window.handleLogout = () => { signOut(auth); location.reload(); };
 </script>
