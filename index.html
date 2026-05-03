@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>GS MASTER - TOTAL</title>
+    <title>GS MASTER</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         :root { --p: #072754; --a: #d31145; --bg: #f4f7f6; }
@@ -18,9 +18,6 @@
         .nav-item.active { color: var(--p); font-weight: bold; }
         .noti-badge { position: absolute; top: 5px; right: 20%; background: var(--a); color: white; font-size: 10px; padding: 2px 5px; border-radius: 10px; display: none; }
         .user-unread { background: var(--a); width: 8px; height: 8px; border-radius: 50%; display: none; margin-left: 5px; }
-        .stat-table { width: 100%; border-collapse: collapse; font-size: 12px; text-align: center; margin-top: 10px; }
-        .stat-table th { background: #f8f9fa; padding: 10px 5px; border-bottom: 2px solid #eee; }
-        .stat-table td { padding: 10px 5px; border-bottom: 1px solid #eee; }
         .chat-box { height: 300px; overflow-y: auto; background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #eee; }
         .msg { margin-bottom: 8px; padding: 8px 12px; border-radius: 12px; max-width: 75%; font-size: 13px; word-break: break-all; }
         .msg.me { background: var(--p); color: white; margin-left: auto; }
@@ -161,7 +158,6 @@
     </nav>
 </div>
 
-<!-- 기록 수정 모달 -->
 <div id="stat-modal" class="hidden" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; display:flex; justify-content:center; align-items:center;">
     <div class="card" style="width:90%;">
         <h3>기록 수정</h3>
@@ -194,14 +190,18 @@
     const auth = getAuth(app);
     let uData = null, uid = null, currentChatPartnerId = null, chatUnsub = null;
 
-    if (Notification.permission !== "granted") Notification.requestPermission();
+    // 알림 권한 체크 (안전한 방식)
+    if (Notification.permission !== "granted" && Notification.permission !== "denied") {
+        Notification.requestPermission();
+    }
+
     function pushNoti(title, body) {
         if (Notification.permission === "granted" && document.visibilityState !== "visible") {
-            new Notification(title, { body });
+            try { new Notification(title, { body }); } catch(e) {}
         }
     }
 
-    // --- 아이폰 전용 전역 함수 등록 ---
+    // --- 전역 함수 등록 ---
     window.toggleAuth = () => {
         document.getElementById('login-box').classList.toggle('hidden');
         document.getElementById('join-box').classList.toggle('hidden');
@@ -211,7 +211,7 @@
         document.querySelectorAll('.app-sec').forEach(s => s.classList.add('hidden'));
         document.getElementById('sec-' + id).classList.remove('hidden');
         document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        if(event) event.currentTarget.classList.add('active');
+        if(event && event.currentTarget) event.currentTarget.classList.add('active');
     };
 
     window.switchSubTab = (type) => {
@@ -233,8 +233,12 @@
     window.closeModal = () => document.getElementById('stat-modal').classList.add('hidden');
     
     window.openMyStat = () => { 
-        document.getElementById('m-ab').value = uData.ab; document.getElementById('m-hit').value = uData.hit; document.getElementById('m-hr').value = uData.hr;
-        document.getElementById('m-p-er').value = uData.p_er; document.getElementById('m-p-ip').value = uData.p_ip; document.getElementById('m-p-win').value = uData.p_win;
+        document.getElementById('m-ab').value = uData.ab || 0; 
+        document.getElementById('m-hit').value = uData.hit || 0; 
+        document.getElementById('m-hr').value = uData.hr || 0;
+        document.getElementById('m-p-er').value = uData.p_er || 0; 
+        document.getElementById('m-p-ip').value = uData.p_ip || 0; 
+        document.getElementById('m-p-win').value = uData.p_win || 0;
         document.getElementById('stat-modal').classList.remove('hidden'); 
     };
 
@@ -268,10 +272,10 @@
         else await deleteDoc(doc(db, "users", id)); 
     };
 
-    // --- 비즈니스 로직 ---
+    // --- 이벤트 핸들러 ---
     document.getElementById('btnLogin').onclick = async () => {
         const e = document.getElementById('id-email').value, p = document.getElementById('id-pw').value;
-        try { await signInWithEmailAndPassword(auth, e, p); } catch(err) { alert("로그인 실패!"); }
+        try { await signInWithEmailAndPassword(auth, e, p); } catch(err) { alert("로그인 실패: " + err.message); }
     };
 
     document.getElementById('btnJoin').onclick = async () => {
@@ -280,14 +284,16 @@
             const uc = await createUserWithEmailAndPassword(auth, email, pw);
             await setDoc(doc(db, "users", uc.user.uid), { name, email, team, role, approved: (role === 'manager'), backnum: "", ab:0, hit:0, hr:0, p_er:0, p_ip:0, p_win:0 });
             alert("가입 요청 완료!"); signOut(auth); location.reload();
-        } catch(e) { alert("가입 실패!"); }
+        } catch(e) { alert("가입 실패: " + e.message); }
     };
 
     onAuthStateChanged(auth, async (user) => {
         if(user) {
-            uid = user.uid; const s = await getDoc(doc(db, "users", uid));
+            uid = user.uid; 
+            const s = await getDoc(doc(db, "users", uid));
             if(s.exists()) {
-                uData = s.data(); if(!uData.approved) { alert("승인 대기 중"); signOut(auth); return; }
+                uData = s.data(); 
+                if(!uData.approved) { alert("승인 대기 중입니다."); signOut(auth); return; }
                 document.getElementById('auth-page').classList.add('hidden');
                 document.getElementById('main-app').classList.remove('hidden');
                 document.getElementById('teamNameDisp').innerText = uData.team;
@@ -296,10 +302,13 @@
                     document.getElementById('mgr-req-card').style.display = 'block';
                     loadRequests(); 
                 }
-                document.getElementById('my-name').value = uData.name;
-                document.getElementById('my-backnum').value = uData.backnum;
+                document.getElementById('my-name').value = uData.name || "";
+                document.getElementById('my-backnum').value = uData.backnum || "";
                 initRealtime();
             }
+        } else {
+            document.getElementById('auth-page').classList.remove('hidden');
+            document.getElementById('main-app').classList.add('hidden');
         }
     });
 
