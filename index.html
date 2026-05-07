@@ -277,4 +277,114 @@
         document.getElementById('sub-chat-list-view').classList.add('hidden'); document.getElementById('sub-chat-room-view').classList.remove('hidden');
         if(chatUnsub) chatUnsub();
         chatUnsub = onSnapshot(query(collection(db, "chats"), where("team", "==", uData.team), orderBy("time", "asc")), (snaps) => {
-            const list = document.getElementById
+            const list = document.getElementById('chat-list'); list.innerHTML = "";
+            snaps.forEach(d => { const c = d.data(); if((c.sender === uid && c.receiver === currentChatPartnerId) || (c.sender === currentChatPartnerId && c.receiver === uid)) {
+                list.innerHTML += `<div class="msg ${c.sender === uid ? 'me' : 'you'}">${c.msg}</div>`;
+            }}); list.scrollTop = list.scrollHeight;
+        });
+    };
+    window.closeChatRoom = () => { document.getElementById('sub-chat-room-view').classList.add('hidden'); document.getElementById('sub-chat-list-view').classList.remove('hidden'); currentChatPartnerId = null; };
+    window.handleApprove = async (id, ok) => { if(ok) await updateDoc(doc(db, "users", id), { approved: true }); else await deleteDoc(doc(db, "users", id)); };
+
+    // [중요] 방출 기능 추가
+    window.kickPlayer = async (targetUid, targetName) => {
+        if (confirm(`${targetName} 선수를 팀에서 방출하시겠습니까?\n이 작업은 취소할 수 없습니다.`)) {
+            try { await deleteDoc(doc(db, "users", targetUid)); alert("방출되었습니다."); } catch(e) { alert("권한이 없거나 오류 발생"); }
+        }
+    };
+
+    document.getElementById('btnLogin').onclick = async () => {
+        const e = document.getElementById('id-email').value, p = document.getElementById('id-pw').value;
+        try { await signInWithEmailAndPassword(auth, e, p); } catch(err) { alert("로그인 실패"); }
+    };
+    document.getElementById('btnJoin').onclick = async () => {
+        const n = document.getElementById('join-name').value, e = document.getElementById('join-email').value, p = document.getElementById('join-pw').value, t = document.getElementById('join-team').value, r = document.getElementById('join-role').value;
+        try { const uc = await createUserWithEmailAndPassword(auth, e, p);
+            await setDoc(doc(db, "users", uc.user.uid), { uid: uc.user.uid, name: n, email: e, team: t, role: r, approved: (r === 'manager'), backnum: "", ab:0, hit:0, hr:0, p_er:0, p_ip:0, p_win:0 });
+            alert("가입 요청됨!"); location.reload();
+        } catch(err) { alert("실패: " + err.message); }
+    };
+
+    onAuthStateChanged(auth, async (user) => {
+        if(user) {
+            uid = user.uid; const s = await getDoc(doc(db, "users", uid));
+            if(s.exists()) {
+                uData = s.data(); if(!uData.approved) { alert("승인 대기"); signOut(auth); return; }
+                document.getElementById('auth-page').classList.add('hidden'); document.getElementById('main-app').classList.remove('hidden');
+                document.getElementById('teamNameDisp').innerText = uData.team;
+                if(uData.role === 'manager') { document.querySelectorAll('.mgr-only').forEach(el => el.style.display = 'block'); document.getElementById('mgr-req-card').style.display = 'block'; loadRequests(); }
+                document.getElementById('my-name').value = uData.name; document.getElementById('my-backnum').value = uData.backnum;
+                initRealtime();
+            }
+        } else { document.getElementById('auth-page').classList.remove('hidden'); document.getElementById('main-app').classList.add('hidden'); }
+    });
+
+    function initRealtime() {
+        const today = new Date().toISOString().split('T')[0];
+        onSnapshot(query(collection(db, "sch"), where("team", "==", uData.team), where("date", ">=", today), orderBy("date", "asc")), (snaps) => {
+            const l = document.getElementById('schedule-list'); l.innerHTML = snaps.empty ? "<p style='color:#999;'>예정된 일정이 없습니다.</p>" : "";
+            snaps.forEach(d => { l.innerHTML += `<div style="padding:15px; border-radius:15px; background:#f9f9f9; margin-bottom:10px; border-left:5px solid var(--a);"><b>${d.data().date}</b><br>${d.data().text}</div>`; });
+        });
+
+        onSnapshot(query(collection(db, "board"), where("team", "==", uData.team), orderBy("time", "desc")), (snaps) => {
+            const l = document.getElementById('board-list'); l.innerHTML = "";
+            snaps.forEach(d => { const b = d.data(); l.innerHTML += `<div style="padding:15px; border-bottom:1px solid #f2f2f2;"><b>${b.name}</b><p style="margin:5px 0 0 0; font-size:14px; color:#444;">${b.msg}</p></div>`; });
+        });
+
+        onSnapshot(query(collection(db, "users"), where("team", "==", uData.team), where("approved", "==", true)), (snaps) => {
+            const hL = document.getElementById('h-list-v2'), pL = document.getElementById('p-list-v2'), uL = document.getElementById('player-list'), leaderDiv = document.getElementById('team-leaders');
+            let pAry = []; snaps.forEach(d => pAry.push(d.data()));
+            
+            hL.innerHTML = ""; pAry.sort((a,b)=>(b.hit/(b.ab||1))-(a.hit/(a.ab||1))).forEach((p, i)=>{
+                const avg = p.ab > 0 ? (p.hit/p.ab).toFixed(3) : ".000";
+                hL.innerHTML += `<div class="stat-card-v3"><div class="rank-badge ${i==0?'rank-1':''}">${i+1}</div><div style="margin-left:10px;"><b>${p.name}</b><br><small>${p.ab}타수 ${p.hit}안타</small></div><div class="main-metric">${avg}</div></div>`;
+            });
+            pL.innerHTML = ""; pAry.filter(p=>p.p_ip>0).sort((a,b)=>((a.p_er*7)/a.p_ip)-((b.p_er*7)/b.p_ip)).forEach((p, i)=>{
+                const era = ((p.p_er*7)/p.p_ip).toFixed(2);
+                pL.innerHTML += `<div class="stat-card-v3"><div class="rank-badge ${i==0?'rank-1':''}">${i+1}</div><div style="margin-left:10px;"><b>${p.name}</b><br><small>${p.p_ip}이닝 ${p.p_win}승</small></div><div class="main-metric" style="color:var(--a)">${era}</div></div>`;
+            });
+            if(pAry.length > 0) { const top = [...pAry].sort((a,b)=>(b.hit/(b.ab||1))-(a.hit/(a.ab||1)))[0]; leaderDiv.innerHTML = `<div style="background:rgba(255,255,255,0.15); padding:12px; border-radius:15px; flex:1; text-align:center;"><small>타율 1위</small><br><b>${top.name}</b><br><span style="color:var(--gold); font-weight:800;">${(top.hit/(top.ab||1)).toFixed(3)}</span></div>`; }
+            
+            // 선수단 리스트 + 방출 버튼
+            uL.innerHTML = ""; pAry.forEach(p => {
+                const kick = (uData.role==='manager' && p.uid !== uid) ? `<button onclick="kickPlayer('${p.uid}', '${p.name}')" style="background:var(--a); color:white; border:none; padding:5px 10px; border-radius:8px; font-size:12px;">방출</button>` : "";
+                uL.innerHTML += `<div style="display:flex; justify-content:space-between; align-items:center; padding:15px; border-bottom:1px solid #f2f2f2;"><div>No.${p.backnum||'??'} <b>${p.name}</b><br><small style="color:#999;">${p.role}</small></div>${kick}</div>`;
+            });
+        });
+
+        onSnapshot(query(collection(db, "lineup"), where("team", "==", uData.team)), (snaps) => {
+            document.querySelectorAll('.player-node p').forEach(p => p.innerText = "-");
+            snaps.forEach(d => { const l = d.data(); const el = document.getElementById('txt-'+l.pos); if(el) el.innerText = l.name; });
+        });
+        onSnapshot(query(collection(db, "chats"), where("team", "==", uData.team), where("receiver", "==", uid)), (snaps) => { if (!snaps.empty) document.getElementById('badge-main-chat').style.display = "block"; });
+    }
+
+    async function loadChatUserList() {
+        const div = document.getElementById('chat-user-list'); div.innerHTML = "";
+        const snaps = await getDocs(query(collection(db, "users"), where("team", "==", uData.team), where("approved", "==", true)));
+        snaps.forEach(d => { if(d.id !== uid) { const u = d.data(); const i = document.createElement('div'); i.className = "card"; i.style.margin="5px 0"; i.innerHTML = `<div style="display:flex; justify-content:space-between;"><b>${u.name}</b><span class="material-icons">chevron_right</span></div>`; i.onclick = () => openChatRoom(d.id, u.name); div.appendChild(i); }});
+    }
+    function loadRequests() {
+        onSnapshot(query(collection(db, "users"), where("team", "==", uData.team), where("approved", "==", false)), (snaps) => {
+            const l = document.getElementById('request-list'); l.innerHTML = "";
+            snaps.forEach(d => { l.innerHTML += `<div style="display:flex; justify-content:space-between; align-items:center; padding:12px; background:#f9f9f9; border-radius:12px; margin-bottom:8px;"><span>${d.data().name}</span><button onclick="handleApprove('${d.id}', true)" style="background:#2e7d32; color:#fff; border:none; padding:8px 15px; border-radius:10px;">승인</button></div>`; });
+        });
+    }
+
+    document.getElementById('btnPost').onclick = async () => { const m = document.getElementById('board-msg').value; if(!m) return; await addDoc(collection(db, "board"), { team: uData.team, name: uData.name, msg: m, time: Date.now() }); document.getElementById('board-msg').value=""; };
+    document.getElementById('btnChatSend').onclick = async () => { const m = document.getElementById('chat-input').value; if(!m) return; await addDoc(collection(db, "chats"), { team: uData.team, sender: uid, receiver: currentChatPartnerId, msg: m, time: Date.now() }); document.getElementById('chat-input').value = ""; };
+    document.getElementById('btnUpdateProfile').onclick = async () => { await updateDoc(doc(db, "users", uid), { name: document.getElementById('my-name').value, backnum: document.getElementById('my-backnum').value }); alert("저장 완료"); };
+    document.getElementById('btnAddSch').onclick = async () => { await addDoc(collection(db, "sch"), { team: uData.team, date: document.getElementById('sch-date').value, text: document.getElementById('sch-text').value }); alert("등록됨"); };
+    document.getElementById('btnUpdateStat').onclick = async () => {
+        const up = { ab: Number(document.getElementById('m-ab').value), hit: Number(document.getElementById('m-hit').value), hr: Number(document.getElementById('m-hr').value), p_er: Number(document.getElementById('m-p-er').value), p_ip: Number(document.getElementById('m-p-ip').value), p_win: Number(document.getElementById('m-p-win').value) };
+        await updateDoc(doc(db, "users", uid), up); uData = {...uData, ...up}; closeModal();
+    };
+    document.getElementById('btnAddLineup').onclick = async () => {
+        const p = document.getElementById('l-pos-select').value, n = document.getElementById('l-name').value;
+        const snaps = await getDocs(query(collection(db, "lineup"), where("team", "==", uData.team), where("pos", "==", p))); snaps.forEach(async d => await deleteDoc(doc(db, "lineup", d.id)));
+        await addDoc(collection(db, "lineup"), { team: uData.team, pos: p, name: n }); alert("완료");
+    };
+    document.getElementById('btnLogout').onclick = () => signOut(auth).then(() => location.reload());
+</script>
+</body>
+</html>
