@@ -7,92 +7,42 @@
     <title>GS MASTER</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-        :root {
-            --p: #072754; --p-light: #1a3a6d; --a: #d31145; --bg: #f0f2f5;
-            --card: #ffffff; --text: #1d1d1f; --text-sub: #86868b; --gold: #ffcc00;
-        }
-
+        :root { --p: #072754; --p-light: #1a3a6d; --a: #d31145; --bg: #f0f2f5; --card: #ffffff; --text: #1d1d1f; --text-sub: #86868b; --gold: #ffcc00; }
         * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
         html, body { height: 100%; overflow: hidden; }
-        body { 
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background-color: var(--bg); margin: 0; color: var(--text);
-            display: flex; flex-direction: column;
-            padding-bottom: env(safe-area-inset-bottom);
-        }
-
+        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background-color: var(--bg); margin: 0; display: flex; flex-direction: column; padding-bottom: env(safe-area-inset-bottom); }
         .hidden { display: none !important; }
-
-        header {
-            background: var(--p); color: white; padding: 18px 20px;
-            display: flex; justify-content: space-between; align-items: center;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1); z-index: 1000;
-        }
-        header b { font-size: 20px; letter-spacing: -0.5px; }
-
-        #main-app { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-        .app-sec { 
-            flex: 1; overflow-y: auto; padding-bottom: 100px;
-            animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        .card {
-            background: var(--card); border-radius: 20px; margin: 15px; padding: 20px;
-            box-shadow: 0 8px 24px rgba(149, 157, 165, 0.08); border: 1px solid rgba(0,0,0,0.02);
-        }
-        .card h3 { margin-top: 0; font-size: 17px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-
-        input, select, textarea {
-            background: #f5f5f7; border: none; border-radius: 12px; padding: 14px;
-            margin-bottom: 12px; width: 100%; font-size: 15px;
-        }
-        .btn {
-            width: 100%; height: 52px; border-radius: 14px; font-size: 16px; font-weight: 600;
-            border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
-        }
+        header { background: var(--p); color: white; padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 1000; }
+        .app-sec { flex: 1; overflow-y: auto; padding-bottom: 100px; animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .card { background: var(--card); border-radius: 20px; margin: 15px; padding: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        input, select, textarea { background: #f5f5f7; border: none; border-radius: 12px; padding: 14px; margin-bottom: 12px; width: 100%; font-size: 15px; outline: none; }
+        .btn { width: 100%; height: 50px; border-radius: 14px; font-size: 16px; font-weight: 600; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-p { background: var(--p); color: white; }
         .btn-a { background: var(--a); color: white; }
-
-        .stat-card-v3 {
-            background: white; border-radius: 15px; padding: 15px; margin-bottom: 10px;
-            display: grid; grid-template-columns: 40px 1fr 80px; align-items: center;
-            border: 1px solid #eee;
-        }
+        .stat-card-v3 { background: white; border-radius: 15px; padding: 15px; margin-bottom: 10px; display: grid; grid-template-columns: 40px 1fr 80px; align-items: center; border: 1px solid #eee; }
         .rank-badge { width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: bold; background: #eee; }
-        .rank-1 { background: var(--gold); }
         .main-metric { text-align: right; color: var(--p); font-weight: 800; font-size: 18px; }
-
-        .nav {
-            position: fixed; bottom: 20px; left: 20px; right: 20px;
-            height: 68px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px);
-            border-radius: 24px; display: flex; box-shadow: 0 10px 30px rgba(0,0,0,0.15); z-index: 2000;
-        }
-        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #999; text-decoration: none; position: relative; cursor: pointer; }
+        .nav { position: fixed; bottom: 20px; left: 20px; right: 20px; height: 68px; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 24px; display: flex; box-shadow: 0 10px 30px rgba(0,0,0,0.1); z-index: 2000; }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #999; cursor: pointer; }
         .nav-item.active { color: var(--p); }
         .nav-item span { font-size: 10px; font-weight: 600; margin-top: 2px; }
-
-        .chat-box { height: 350px; overflow-y: auto; padding: 10px; background: #f9f9f9; border-radius: 15px; display: flex; flex-direction: column; }
-        .msg { margin-bottom: 10px; padding: 10px 15px; border-radius: 18px; max-width: 80%; font-size: 14px; }
+        .chat-box { height: 300px; overflow-y: auto; padding: 10px; background: #f9f9f9; border-radius: 15px; display: flex; flex-direction: column; }
+        .msg { margin-bottom: 8px; padding: 10px 14px; border-radius: 18px; max-width: 80%; font-size: 14px; word-break: break-all; }
         .msg.me { background: var(--p); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
         .msg.you { background: #e9e9eb; color: #333; align-self: flex-start; border-bottom-left-radius: 4px; }
-
-        .player-node { position: absolute; width: 44px; height: 44px; background: white; border: 2.5px solid var(--p); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; transform: translate(-50%, -50%); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        .player-node span { font-size: 8px; font-weight: 900; color: var(--a); margin-bottom: -3px; }
-        .player-node p { font-size: 10px; font-weight: bold; margin: 0; color: var(--p); }
-
-        .kick-btn { background: #ffebee; color: #d32f2f; border: none; padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: bold; cursor: pointer; }
+        .kick-btn { background: #ffebee; color: #d32f2f; border: none; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: bold; }
     </style>
 </head>
 <body>
 
 <div id="auth-page" class="card" style="margin-top:80px;">
-    <h2 style="text-align:center; color:var(--p); font-size:28px;">⚾️ GS MASTER</h2>
+    <h2 style="text-align:center; color:var(--p);">⚾️ GS MASTER</h2>
     <div id="login-box">
         <input type="email" id="id-email" placeholder="이메일">
         <input type="password" id="id-pw" placeholder="비밀번호">
         <button class="btn btn-p" id="btnLogin">로그인</button>
-        <p id="toggle-to-join" style="text-align:center; color:var(--text-sub); margin-top:25px; cursor:pointer;">계정 만들기</p>
+        <p id="toggle-to-join" style="text-align:center; color:var(--text-sub); margin-top:20px;">계정 만들기</p>
     </div>
     <div id="join-box" class="hidden">
         <input type="text" id="join-name" placeholder="이름">
@@ -100,8 +50,7 @@
         <input type="password" id="join-pw" placeholder="비밀번호">
         <input type="text" id="join-team" placeholder="팀 이름">
         <select id="join-role"><option value="player">선수</option><option value="manager">감독</option></select>
-        <button class="btn btn-a" id="btnJoin">회원가입 완료</button>
-        <p id="toggle-to-login" style="text-align:center; color:var(--text-sub); margin-top:25px; cursor:pointer;">돌아가기</p>
+        <button class="btn btn-a" id="btnJoin">가입 완료</button>
     </div>
 </div>
 
@@ -109,133 +58,88 @@
     <header><b id="teamNameDisp">TEAM</b><span class="material-icons" id="btnLogout">logout</span></header>
 
     <section id="sec-home" class="app-sec">
-        <div class="card" id="mgr-req-card" style="display:none; border:2px solid var(--a);">
-            <h3> 가입 승인 대기</h3>
-            <div id="request-list"></div>
-        </div>
-        <div class="card">
-            <h3> 경기/훈련 일정</h3>
-            <div id="schedule-list"></div>
-            <div class="mgr-only" style="display:none; margin-top:15px; border-top:1px solid #eee; padding-top:15px;">
-                <input type="date" id="sch-date"><input type="text" id="sch-text" placeholder="내용"><button class="btn btn-p" id="btnAddSch" style="height:40px;">등록</button>
-            </div>
+        <div class="card" id="mgr-req-card" style="display:none; border:2px solid var(--a);"><h3>승인 대기</h3><div id="request-list"></div></div>
+        <div class="card"><h3>경기/훈련 일정</h3><div id="schedule-list"></div>
+            <div class="mgr-only" style="display:none; margin-top:15px;"><input type="date" id="sch-date"><input type="text" id="sch-text" placeholder="내용"><button class="btn btn-p" id="btnAddSch">일정 등록</button></div>
         </div>
     </section>
 
     <section id="sec-board" class="app-sec hidden">
-        <div style="display:flex; padding: 15px 15px 0 15px; gap: 10px;">
+        <div style="display:flex; padding:15px; gap:10px;">
             <button id="btn-sub-board" class="btn btn-p" style="flex:1;">게시판</button>
             <button id="btn-sub-chat" class="btn" style="flex:1; background:#ccc; color:white;">메시지</button>
         </div>
         <div id="sub-board-view" class="card">
-            <div id="board-list" style="margin-bottom:15px; max-height:250px; overflow-y:auto;"></div>
-            <textarea id="board-msg" placeholder="내용 입력..." rows="2"></textarea>
-            <button class="btn btn-p" id="btnPost">공유하기</button>
+            <div id="board-list" style="max-height:300px; overflow-y:auto; margin-bottom:15px;"></div>
+            <textarea id="board-msg" placeholder="팀원들과 공유할 내용을 입력하세요"></textarea>
+            <button class="btn btn-p" id="btnPost">글쓰기</button>
         </div>
-        <div id="sub-chat-list-view" class="card hidden"><div id="chat-user-list"></div></div>
+        <div id="sub-chat-list-view" class="card hidden"><h3>대화할 상대 선택</h3><div id="chat-user-list"></div></div>
         <div id="sub-chat-room-view" class="card hidden">
-            <div style="display:flex; align-items:center; margin-bottom:15px; gap:10px;"><span class="material-icons" id="btnChatBack">arrow_back</span><b id="chat-target-name"></b></div>
+            <div style="display:flex; align-items:center; margin-bottom:15px;"><span class="material-icons" id="btnChatBack">arrow_back</span>&nbsp;&nbsp;<b id="chat-target-name"></b></div>
             <div id="chat-list" class="chat-box"></div>
             <div style="display:flex; gap:8px; margin-top:10px;"><input type="text" id="chat-input" style="margin:0;"><button class="btn btn-a" id="btnChatSend" style="width:70px; margin:0;">전송</button></div>
         </div>
     </section>
 
     <section id="sec-stats" class="app-sec hidden">
-        <div class="card" style="background:var(--p); color:white;"><div id="team-leaders" style="display:flex; gap:10px;"></div></div>
         <div class="card">
-            <div style="display:flex; gap:8px; margin-bottom:15px;"><button class="btn btn-p" id="btn-tab-h" style="flex:1;">타자</button><button class="btn" id="btn-tab-p" style="flex:1; background:#ccc; color:white;">투수</button></div>
+            <div style="display:flex; gap:8px; margin-bottom:15px;"><button class="btn btn-p" id="btn-tab-h" style="flex:1;">타자 순위</button><button class="btn" id="btn-tab-p" style="flex:1; background:#ccc; color:white;">투수 순위</button></div>
             <div id="h-stat-container"><div id="h-list-v2"></div></div>
             <div id="p-stat-container" class="hidden"><div id="p-list-v2"></div></div>
             <button class="btn btn-a" id="btnOpenMyStat" style="margin-top:10px;">내 기록 수정</button>
         </div>
     </section>
 
-    <section id="sec-lineup" class="app-sec hidden">
-        <div class="card">
-             <div style="position: relative; width: 100%; aspect-ratio: 1/1.1; background: #2e7d32; border-radius: 15px; border: 4px solid #fff; overflow: hidden;">
-                <div class="player-node" style="left:50%; top:60%;" id="pos-P"><span>P</span><p id="txt-P">-</p></div>
-                <div class="player-node" style="left:50%; top:88%;" id="pos-C"><span>C</span><p id="txt-C">-</p></div>
-                <div class="player-node" style="left:82%; top:55%;" id="pos-1B"><span>1B</span><p id="txt-1B">-</p></div>
-                <div class="player-node" style="left:68%; top:32%;" id="pos-2B"><span>2B</span><p id="txt-2B">-</p></div>
-                <div class="player-node" style="left:32%; top:32%;" id="pos-SS"><span>SS</span><p id="txt-SS">-</p></div>
-                <div class="player-node" style="left:18%; top:55%;" id="pos-3B"><span>3B</span><p id="txt-3B">-</p></div>
-                <div class="player-node" style="left:15%; top:15%;" id="pos-LF"><span>LF</span><p id="txt-LF">-</p></div>
-                <div class="player-node" style="left:50%; top:10%;" id="pos-CF"><span>CF</span><p id="txt-CF">-</p></div>
-                <div class="player-node" style="left:85%; top:15%;" id="pos-RF"><span>RF</span><p id="txt-RF">-</p></div>
-            </div>
-            <div class="mgr-only" style="display:none; margin-top:20px;">
-                <select id="l-pos-select"><option value="P">P</option><option value="C">C</option><option value="1B">1B</option><option value="2B">2B</option><option value="3B">3B</option><option value="SS">SS</option><option value="LF">LF</option><option value="CF">CF</option><option value="RF">RF</option></select>
-                <input type="text" id="l-name" placeholder="선수 이름"><button class="btn btn-p" id="btnAddLineup">저장</button>
-            </div>
-        </div>
-    </section>
-
     <section id="sec-players" class="app-sec hidden">
-        <div class="card">
-            <h3>내 정보</h3>
-            <input type="text" id="my-name" placeholder="이름"><input type="number" id="my-backnum" placeholder="등번호"><button class="btn btn-p" id="btnUpdateProfile">저장</button>
-        </div>
-        <div class="card">
-            <h3>우리 팀 명단</h3>
-            <div id="player-list"></div>
-        </div>
+        <div class="card"><h3>내 정보 수정</h3><input type="text" id="my-name"><input type="number" id="my-backnum" placeholder="등번호"><button class="btn btn-p" id="btnUpdateProfile">정보 저장</button></div>
+        <div class="card"><h3>팀원 명단 (방출/관리)</h3><div id="player-list"></div></div>
     </section>
 
     <nav class="nav">
-        <a class="nav-item active" id="nav-home"><span class="material-icons">home</span><span>홈</span></a>
-        <a class="nav-item" id="nav-board"><span class="material-icons">forum</span><span>팀톡</span></a>
-        <a class="nav-item" id="nav-stats"><span class="material-icons">analytics</span><span>기록</span></a>
-        <a class="nav-item" id="nav-lineup"><span class="material-icons">ads_click</span><span>오더</span></a>
-        <a class="nav-item" id="nav-players"><span class="material-icons">account_circle</span><span>정보</span></a>
+        <div class="nav-item active" id="nav-home"><span class="material-icons">home</span><span>홈</span></div>
+        <div class="nav-item" id="nav-board"><span class="material-icons">forum</span><span>팀톡</span></div>
+        <div class="nav-item" id="nav-stats"><span class="material-icons">analytics</span><span>기록</span></div>
+        <div class="nav-item" id="nav-players"><span class="material-icons">groups</span><span>팀원</span></div>
     </nav>
 </div>
 
-<div id="stat-modal" class="hidden" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:3000; display:flex; justify-content:center; align-items:center; padding:20px;">
+<div id="stat-modal" class="hidden" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:3000; display:flex; justify-content:center; align-items:center; padding:20px;">
     <div class="card" style="width:100%; max-width:400px;">
-        <h3>기록 수정</h3>
+        <h3>기록 업데이트</h3>
         <div style="display:grid; grid-template-columns: 1fr 1fr; gap:10px;">
             <div><small>타수</small><input type="number" id="m-ab"></div>
             <div><small>안타</small><input type="number" id="m-hit"></div>
-            <div><small>홈런</small><input type="number" id="m-hr"></div>
             <div><small>자책</small><input type="number" id="m-p-er"></div>
             <div><small>이닝</small><input type="number" id="m-p-ip"></div>
-            <div><small>승리</small><input type="number" id="m-p-win"></div>
         </div>
-        <button class="btn btn-p" id="btnUpdateStat">저장</button>
-        <button class="btn" id="btnCloseModal" style="background:none;">취소</button>
+        <button class="btn btn-p" id="btnUpdateStat">저장하기</button>
+        <button class="btn" id="btnCloseModal" style="background:none; color:#666;">닫기</button>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc, collection, addDoc, query, where, orderBy, onSnapshot, deleteDoc, getDocs, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, addDoc, query, where, orderBy, onSnapshot, deleteDoc, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
     import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const cfg = { apiKey: "AIzaSyCio2QRCCR5RhnA6l-pnNzMQ8cWKO0Z1Dg", authDomain: "busan260501-147bb.firebaseapp.com", projectId: "busan260501-147bb", appId: "1:322128107410:web:c6b8fbbda00a09fcae534b" };
     const app = initializeApp(cfg); const db = getFirestore(app); const auth = getAuth(app);
-    let uData = null, uid = null, currentChatPartnerId = null, chatUnsub = null;
+    let uData = null, uid = null, chatUnsub = null;
 
-    // --- UI 로직 ---
-    const showSec = (id) => {
-        document.querySelectorAll('.app-sec').forEach(s => s.classList.add('hidden'));
-        document.getElementById('sec-' + id).classList.remove('hidden');
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        document.getElementById('nav-' + id).classList.add('active');
-    };
-
-    // --- 인증 감시 ---
     onAuthStateChanged(auth, async (user) => {
         if(user) {
             uid = user.uid; const snap = await getDoc(doc(db, "users", uid));
             if(snap.exists()) {
                 uData = snap.data();
-                if(!uData.approved) { alert("승인 대기"); signOut(auth); return; }
+                if(!uData.approved) { alert("가입 승인이 필요합니다."); signOut(auth); return; }
                 document.getElementById('auth-page').classList.add('hidden');
                 document.getElementById('main-app').classList.remove('hidden');
                 document.getElementById('teamNameDisp').innerText = uData.team;
+                document.getElementById('my-name').value = uData.name;
                 if(uData.role === 'manager') { document.querySelectorAll('.mgr-only').forEach(e => e.style.display = 'block'); document.getElementById('mgr-req-card').style.display = 'block'; loadRequests(); }
                 initRealtime();
-            } else { signOut(auth); } // 방출된 경우 처리
+            } else { signOut(auth); }
         } else {
             document.getElementById('auth-page').classList.remove('hidden');
             document.getElementById('main-app').classList.add('hidden');
@@ -243,99 +147,117 @@
     });
 
     function initRealtime() {
-        const t = new Date().toISOString().split('T')[0];
-        onSnapshot(query(collection(db, "sch"), where("team", "==", uData.team), where("date", ">=", t), orderBy("date", "asc")), s => {
-            const l = document.getElementById('schedule-list'); l.innerHTML = s.empty ? "<p>일정 없음</p>" : "";
-            s.forEach(d => l.innerHTML += `<div style="padding:12px; background:#f9f9f9; border-radius:10px; margin-bottom:8px; border-left:4px solid var(--a);"><b>${d.data().date}</b><br>${d.data().text}</div>`);
-        });
         onSnapshot(query(collection(db, "board"), where("team", "==", uData.team), orderBy("time", "desc")), s => {
             const l = document.getElementById('board-list'); l.innerHTML = "";
             s.forEach(d => l.innerHTML += `<div style="padding:10px; border-bottom:1px solid #eee;"><b>${d.data().name}</b>: ${d.data().msg}</div>`);
         });
+
         onSnapshot(query(collection(db, "users"), where("team", "==", uData.team), where("approved", "==", true)), s => {
             let ps = []; s.forEach(d => ps.push(d.data()));
-            renderStats(ps);
-        });
-        onSnapshot(query(collection(db, "lineup"), where("team", "==", uData.team)), s => {
-            document.querySelectorAll('.player-node p').forEach(p => p.innerText = "-");
-            s.forEach(d => { const l = d.data(); if(document.getElementById('txt-'+l.pos)) document.getElementById('txt-'+l.pos).innerText = l.name; });
+            renderStatsAndPlayers(ps);
         });
     }
 
-    function renderStats(players) {
-        const hL = document.getElementById('h-list-v2'), pL = document.getElementById('p-list-v2'), uL = document.getElementById('player-list'), tL = document.getElementById('team-leaders');
-        hL.innerHTML = ""; pL.innerHTML = ""; uL.innerHTML = "";
-        
-        const sortedH = [...players].sort((a,b)=>(b.hit/(b.ab||1))-(a.hit/(a.ab||1)));
-        sortedH.forEach((p, i) => {
+    function renderStatsAndPlayers(players) {
+        const hL = document.getElementById('h-list-v2'), pL = document.getElementById('p-list-v2'), uL = document.getElementById('player-list'), cL = document.getElementById('chat-user-list');
+        hL.innerHTML = ""; pL.innerHTML = ""; uL.innerHTML = ""; cL.innerHTML = "";
+
+        // 타자 순위
+        [...players].sort((a,b)=>(b.hit/(b.ab||1))-(a.hit/(a.ab||1))).forEach((p, i) => {
             const avg = p.ab > 0 ? (p.hit/p.ab).toFixed(3) : ".000";
-            hL.innerHTML += `<div class="stat-card-v3"><div class="rank-badge ${i==0?'rank-1':''}">${i+1}</div><div><b>${p.name}</b><br><small>${p.ab}-${p.hit}</small></div><div class="main-metric">${avg}</div></div>`;
-            
-            // 명단 렌더링 (방출 버튼 포함)
-            const isManager = uData.role === 'manager';
-            const isMe = p.uid === uid;
+            hL.innerHTML += `<div class="stat-card-v3"><div class="rank-badge">${i+1}</div><div><b>${p.name}</b><br><small>${p.ab}타수 ${p.hit}안타</small></div><div class="main-metric">${avg}</div></div>`;
+        });
+
+        // 투수 순위 (수정됨)
+        const pitchers = players.filter(p => p.p_ip > 0).sort((a,b) => ((a.p_er*7)/a.p_ip) - ((b.p_er*7)/b.p_ip));
+        pitchers.forEach((p, i) => {
+            const era = ((p.p_er*7)/p.p_ip).toFixed(2);
+            pL.innerHTML += `<div class="stat-card-v3"><div class="rank-badge" style="background:var(--a); color:white;">${i+1}</div><div><b>${p.name}</b><br><small>${p.p_ip}이닝 ${p.p_er}자책</small></div><div class="main-metric" style="color:var(--a)">${era}</div></div>`;
+        });
+
+        // 명단 & 채팅 리스트
+        players.forEach(p => {
+            if(p.uid !== uid) {
+                cL.innerHTML += `<div style="padding:15px; background:#f9f9f9; border-radius:12px; margin-bottom:8px; cursor:pointer;" onclick="window.startChat('${p.uid}', '${p.name}')"><b>${p.name}</b> 선수와 대화</div>`;
+            }
             uL.innerHTML += `<div style="display:flex; justify-content:space-between; align-items:center; padding:12px; border-bottom:1px solid #eee;">
                 <span>No.${p.backnum||'??'} <b>${p.name}</b> (${p.role})</span>
-                ${isManager && !isMe ? `<button class="kick-btn" onclick="window.kickPlayer('${p.uid}', '${p.name}')">방출</button>` : ''}
+                ${uData.role === 'manager' && p.uid !== uid ? `<button class="kick-btn" onclick="window.kickPlayer('${p.uid}', '${p.name}')">방출</button>` : ''}
             </div>`;
         });
-
-        players.filter(p=>p.p_ip>0).sort((a,b)=>((a.p_er*7)/a.p_ip)-((b.p_er*7)/b.p_ip)).forEach((p, i) => {
-            const era = ((p.p_er*7)/p.p_ip).toFixed(2);
-            pL.innerHTML += `<div class="stat-card-v3"><div class="rank-badge ${i==0?'rank-1':''}">${i+1}</div><div><b>${p.name}</b><br><small>${p.p_ip}이닝</small></div><div class="main-metric" style="color:var(--a)">${era}</div></div>`;
-        });
-        if(sortedH[0]) tL.innerHTML = `<div style="flex:1; text-align:center;"><small>타율 1위</small><br><b>${sortedH[0].name}</b> (${(sortedH[0].hit/(sortedH[0].ab||1)).toFixed(3)})</div>`;
     }
 
-    // --- 방출 함수 (전역) ---
-    window.kickPlayer = async (pid, pname) => {
-        if(confirm(`정말로 ${pname} 선수를 팀에서 방출하시겠습니까?\n방출 시 모든 기록과 계정 데이터가 삭제됩니다.`)) {
-            await deleteDoc(doc(db, "users", pid));
-            alert(`${pname} 선수가 방출되었습니다.`);
-        }
+    // --- 채팅 로직 ---
+    window.startChat = (targetUid, targetName) => {
+        document.getElementById('sub-chat-list-view').classList.add('hidden');
+        document.getElementById('sub-chat-room-view').classList.remove('hidden');
+        document.getElementById('chat-target-name').innerText = targetName;
+        const chatId = uid < targetUid ? uid + targetUid : targetUid + uid;
+        
+        if(chatUnsub) chatUnsub();
+        chatUnsub = onSnapshot(query(collection(db, "chats", chatId, "msg"), orderBy("time", "asc")), s => {
+            const l = document.getElementById('chat-list'); l.innerHTML = "";
+            s.forEach(d => {
+                const m = d.data();
+                l.innerHTML += `<div class="msg ${m.sender===uid?'me':'you'}">${m.text}</div>`;
+            });
+            l.scrollTop = l.scrollHeight;
+        });
+
+        document.getElementById('btnChatSend').onclick = () => {
+            const txt = document.getElementById('chat-input').value;
+            if(!txt) return;
+            addDoc(collection(db, "chats", chatId, "msg"), { sender: uid, text: txt, time: Date.now() });
+            document.getElementById('chat-input').value = "";
+        };
     };
 
-    // --- 클릭 이벤트들 ---
+    window.kickPlayer = async (pid, pname) => {
+        if(confirm(`${pname} 선수를 방출하시겠습니까?`)) { await deleteDoc(doc(db, "users", pid)); alert("방출되었습니다."); }
+    };
+
+    // --- 기타 이벤트 ---
     document.getElementById('btnLogin').onclick = () => signInWithEmailAndPassword(auth, document.getElementById('id-email').value, document.getElementById('id-pw').value).catch(()=>alert("로그인 실패"));
     document.getElementById('btnJoin').onclick = async () => {
         const n=document.getElementById('join-name').value, e=document.getElementById('join-email').value, p=document.getElementById('join-pw').value, t=document.getElementById('join-team').value, r=document.getElementById('join-role').value;
         const uc = await createUserWithEmailAndPassword(auth, e, p);
-        await setDoc(doc(db, "users", uc.user.uid), { uid:uc.user.uid, name:n, email:e, team:t, role:r, approved:(r==='manager'), ab:0, hit:0, hr:0, p_er:0, p_ip:0, p_win:0 });
+        await setDoc(doc(db, "users", uc.user.uid), { uid:uc.user.uid, name:n, email:e, team:t, role:r, approved:(r==='manager'), ab:0, hit:0, p_er:0, p_ip:0 });
         location.reload();
     };
     document.getElementById('btnPost').onclick = () => addDoc(collection(db,"board"), { team:uData.team, name:uData.name, msg:document.getElementById('board-msg').value, time:Date.now() }).then(()=>document.getElementById('board-msg').value="");
-    document.getElementById('btnOpenMyStat').onclick = () => { document.getElementById('m-ab').value=uData.ab; document.getElementById('m-hit').value=uData.hit; document.getElementById('stat-modal').classList.remove('hidden'); };
+    document.getElementById('btnOpenMyStat').onclick = () => { document.getElementById('m-ab').value=uData.ab; document.getElementById('m-hit').value=uData.hit; document.getElementById('m-p-er').value=uData.p_er; document.getElementById('m-p-ip').value=uData.p_ip; document.getElementById('stat-modal').classList.remove('hidden'); };
     document.getElementById('btnUpdateStat').onclick = async () => {
-        const up = { ab:Number(document.getElementById('m-ab').value), hit:Number(document.getElementById('m-hit').value), hr:Number(document.getElementById('m-hr').value), p_er:Number(document.getElementById('m-p-er').value), p_ip:Number(document.getElementById('m-p-ip').value), p_win:Number(document.getElementById('m-p-win').value) };
+        const up = { ab:Number(document.getElementById('m-ab').value), hit:Number(document.getElementById('m-hit').value), p_er:Number(document.getElementById('m-p-er').value), p_ip:Number(document.getElementById('m-p-ip').value) };
         await updateDoc(doc(db,"users",uid), up); uData = {...uData, ...up}; document.getElementById('stat-modal').classList.add('hidden');
     };
-    document.getElementById('btnAddLineup').onclick = async () => {
-        const pos=document.getElementById('l-pos-select').value, n=document.getElementById('l-name').value;
-        const q=query(collection(db,"lineup"), where("team","==",uData.team), where("pos","==",pos));
-        const s=await getDocs(q); s.forEach(async d => await deleteDoc(doc(db,"lineup",d.id)));
-        await addDoc(collection(db,"lineup"), { team:uData.team, pos, name:n }); alert("배치됨");
-    };
     document.getElementById('btnUpdateProfile').onclick = () => updateDoc(doc(db,"users",uid), { name:document.getElementById('my-name').value, backnum:document.getElementById('my-backnum').value }).then(()=>alert("수정됨"));
-    document.getElementById('btnAddSch').onclick = () => addDoc(collection(db,"sch"), { team:uData.team, date:document.getElementById('sch-date').value, text:document.getElementById('sch-text').value }).then(()=>alert("등록됨"));
-
-    // 네비게이션
-    document.getElementById('nav-home').onclick = () => showSec('home');
-    document.getElementById('nav-board').onclick = () => showSec('board');
-    document.getElementById('nav-stats').onclick = () => showSec('stats');
-    document.getElementById('nav-lineup').onclick = () => showSec('lineup');
-    document.getElementById('nav-players').onclick = () => showSec('players');
-    document.getElementById('btn-sub-board').onclick = () => { document.getElementById('sub-board-view').classList.remove('hidden'); document.getElementById('sub-chat-list-view').classList.add('hidden'); };
+    
+    document.getElementById('nav-home').onclick = () => { showSec('home'); };
+    document.getElementById('nav-board').onclick = () => { showSec('board'); };
+    document.getElementById('nav-stats').onclick = () => { showSec('stats'); };
+    document.getElementById('nav-players').onclick = () => { showSec('players'); };
+    document.getElementById('btn-sub-board').onclick = () => { document.getElementById('sub-board-view').classList.remove('hidden'); document.getElementById('sub-chat-list-view').classList.add('hidden'); document.getElementById('sub-chat-room-view').classList.add('hidden'); };
+    document.getElementById('btn-sub-chat').onclick = () => { document.getElementById('sub-board-view').classList.add('hidden'); document.getElementById('sub-chat-list-view').classList.remove('hidden'); };
+    document.getElementById('btnChatBack').onclick = () => { document.getElementById('sub-chat-list-view').classList.remove('hidden'); document.getElementById('sub-chat-room-view').classList.add('hidden'); };
     document.getElementById('btnCloseModal').onclick = () => document.getElementById('stat-modal').classList.add('hidden');
-    document.getElementById('btnLogout').onclick = () => signOut(auth).then(()=>location.reload());
+    document.getElementById('btnLogout').onclick = () => signOut(auth);
+    document.getElementById('btn-tab-h').onclick = () => { document.getElementById('h-stat-container').classList.remove('hidden'); document.getElementById('p-stat-container').classList.add('hidden'); };
+    document.getElementById('btn-tab-p').onclick = () => { document.getElementById('h-stat-container').classList.add('hidden'); document.getElementById('p-stat-container').classList.remove('hidden'); };
     document.getElementById('toggle-to-join').onclick = () => { document.getElementById('login-box').classList.add('hidden'); document.getElementById('join-box').classList.remove('hidden'); };
-    document.getElementById('toggle-to-login').onclick = () => { document.getElementById('login-box').classList.remove('hidden'); document.getElementById('join-box').classList.add('hidden'); };
+
+    function showSec(id) {
+        document.querySelectorAll('.app-sec').forEach(s => s.classList.add('hidden'));
+        document.getElementById('sec-' + id).classList.remove('hidden');
+        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+        document.getElementById('nav-' + id).classList.add('active');
+    }
 
     function loadRequests() {
         onSnapshot(query(collection(db,"users"), where("team","==",uData.team), where("approved","==",false)), s => {
             const l=document.getElementById('request-list'); l.innerHTML = "";
             s.forEach(d => {
-                const dv = document.createElement('div'); dv.style.display="flex"; dv.style.justifyContent="space-between"; dv.style.padding="8px";
-                dv.innerHTML = `<span>${d.data().name}</span> <button style="background:green; color:white; border:none; padding:4px 8px; border-radius:4px;">승인</button>`;
+                const dv = document.createElement('div'); dv.style.display="flex"; dv.style.justifyContent="space-between"; dv.style.margin="5px 0";
+                dv.innerHTML = `<span>${d.data().name}</span> <button class="btn btn-p" style="width:60px; height:30px; font-size:12px;">승인</button>`;
                 dv.querySelector('button').onclick = () => updateDoc(doc(db,"users",d.id), { approved:true });
                 l.appendChild(dv);
             });
