@@ -3,133 +3,153 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>GS MASTER - Full Function</title>
+    <title>GS MASTER PRO</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
-        :root { --p: #0747a6; --p-dark: #002d72; --a: #d31145; --bg: #f4f7fa; --card: #ffffff; --text: #1d1d1f; }
+        :root { --p: #0747a6; --p-dark: #002d72; --a: #d31145; --bg: #f0f2f5; --card: #ffffff; --text: #1d1d1f; }
         * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
-        
-        /* 스크롤 이슈 해결: body는 고정, 안쪽 섹션만 스크롤 */
-        body { font-family: 'Pretendard', -apple-system, sans-serif; margin: 0; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
+        body { font-family: 'Pretendard', sans-serif; margin: 0; background: var(--bg); color: var(--text); height: 100vh; display: flex; flex-direction: column; overflow: hidden; }
         .hidden { display: none !important; }
         
-        header { flex-shrink: 0; background: var(--card); border-bottom: 1px solid #e1e4e8; padding: 18px 20px; display: flex; justify-content: space-between; align-items: center; padding-top: calc(18px + env(safe-area-inset-top)); z-index: 100; }
-        header b { font-size: 20px; color: var(--p); font-weight: 800; }
-
-        /* 스크롤 가능 영역 설정 */
-        .app-sec { flex: 1; overflow-y: auto; padding-bottom: 120px; -webkit-overflow-scrolling: touch; }
+        /* 헤더 및 스크롤 설정 */
+        header { flex-shrink: 0; background: var(--card); border-bottom: 1px solid #ddd; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 100; }
+        header b { font-size: 18px; color: var(--p); }
+        .app-sec { flex: 1; overflow-y: auto; padding: 15px; padding-bottom: 100px; -webkit-overflow-scrolling: touch; }
         
-        .card { background: var(--card); border-radius: 20px; margin: 15px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        h3 { font-size: 16px; margin: 0 0 15px 0; color: var(--p); display: flex; align-items: center; justify-content: space-between; }
+        .card { background: var(--card); border-radius: 15px; padding: 15px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+        h3 { font-size: 16px; margin: 0 0 12px 0; color: var(--p); display: flex; justify-content: space-between; align-items: center; }
 
-        input, select, textarea { background: #f1f3f5; border: none; border-radius: 12px; padding: 12px; margin-bottom: 10px; width: 100%; font-size: 15px; outline: none; }
-        .btn { width: 100%; height: 50px; border-radius: 12px; font-size: 15px; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+        /* 입력 및 버튼 */
+        input, select { background: #f8f9fa; border: 1px solid #eee; border-radius: 10px; padding: 10px; margin-bottom: 8px; width: 100%; font-size: 14px; outline: none; }
+        .btn { width: 100%; height: 45px; border-radius: 10px; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 5px; transition: 0.2s; }
         .btn-p { background: var(--p); color: white; }
         .btn-gray { background: #e9ecef; color: #495057; }
-        .btn-s { height: 35px; font-size: 12px; width: auto; padding: 0 12px; }
-
-        /* 하단 네비게이션 스크롤 방해 금지 */
-        .nav { position: fixed; bottom: calc(15px + env(safe-area-inset-bottom)); left: 10px; right: 10px; height: 65px; background: white; border-radius: 20px; display: flex; box-shadow: 0 8px 25px rgba(0,0,0,0.1); border: 1px solid #eee; z-index: 1000; }
-        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #adb5bd; }
-        .nav-item.active { color: var(--p); }
+        .btn-s { height: 32px; font-size: 12px; width: auto; padding: 0 10px; }
         
-        .list-item { padding: 15px; border-bottom: 1px solid #f1f3f5; display: flex; justify-content: space-between; align-items: center; }
+        /* 탭 버튼 색상 변경 보장 */
         .tab-btn.active { background: var(--p) !important; color: white !important; }
-        
-        .modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.5); z-index:9999; display:flex; justify-content:center; align-items:center; padding: 20px; }
+
+        /* 네비게이션 */
+        .nav { position: fixed; bottom: 0; left: 0; right: 0; height: 70px; background: white; display: flex; border-top: 1px solid #eee; padding-bottom: env(safe-area-inset-bottom); }
+        .nav-item { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; color: #999; font-size: 10px; }
+        .nav-item.active { color: var(--p); }
+        .nav-item span { font-size: 24px; margin-bottom: 2px; }
+
+        /* 야구장 라인업 디자인 */
+        .field { position: relative; width: 100%; aspect-ratio: 1/1; background: #4CAF50; border-radius: 50% 50% 10px 10px; border: 5px solid #fff; overflow: hidden; margin-top: 10px; }
+        .pos { position: absolute; width: 40px; height: 40px; background: white; border: 2px solid var(--p); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 8px; font-weight: bold; transform: translate(-50%, -50%); }
+        .p-name { font-size: 9px; color: var(--p); white-space: nowrap; }
+
+        /* 리스트 아이템 */
+        .list-item { padding: 12px 0; border-bottom: 1px solid #f1f1f1; display: flex; justify-content: space-between; align-items: center; }
+        .kick-btn { color: var(--a); font-size: 11px; padding: 4px 8px; border: 1px solid var(--a); border-radius: 5px; }
+
+        /* 채팅 */
+        .chat-bubble { margin-bottom: 10px; padding: 10px; border-radius: 10px; max-width: 80%; font-size: 14px; }
+        .chat-me { background: var(--p); color: white; margin-left: auto; }
+        .chat-you { background: #eee; color: #333; margin-right: auto; }
     </style>
 </head>
 <body>
 
-<div id="auth-page" class="app-sec">
-    <div class="card" style="margin-top: 100px;">
-        <h2 style="text-align:center; color:var(--p);">GS MASTER</h2>
-        <div id="login-box">
-            <input type="email" id="id-email" placeholder="이메일">
-            <input type="password" id="id-pw" placeholder="비밀번호">
-            <button class="btn btn-p" id="btnLogin">로그인</button>
-            <p style="text-align:center;" onclick="toggleAuth(false)">계정이 없으신가요? <b>회원가입</b></p>
-        </div>
-        <div id="join-box" class="hidden">
-            <input type="text" id="join-name" placeholder="이름">
-            <input type="email" id="join-email" placeholder="이메일">
-            <input type="password" id="join-pw" placeholder="비밀번호">
-            <input type="text" id="join-team" placeholder="팀 이름 입력/검색">
-            <select id="join-role"><option value="player">선수</option><option value="manager">감독</option></select>
-            <button class="btn btn-p" id="btnJoin">가입/팀생성 요청</button>
-            <p style="text-align:center;" onclick="toggleAuth(true)">이미 계정이 있나요? <b>로그인</b></p>
-        </div>
+<header>
+    <b id="teamNameDisp">로딩 중...</b>
+    <div>
+        <span class="material-icons m-only hidden" onclick="openTeamSet()" style="margin-right:15px; vertical-align: middle; cursor:pointer;">settings</span>
+        <span class="material-icons" id="btnLogout" style="vertical-align: middle; cursor:pointer;">logout</span>
     </div>
-</div>
+</header>
 
 <div id="main-app" class="hidden">
-    <header><b id="teamNameDisp">팀 이름</b><span class="material-icons" id="btnLogout">logout</span></header>
-
-    <section id="sec-schedule" class="app-sec hidden">
+    <section id="sec-schedule" class="app-sec">
         <div class="card">
-            <h3>시합 일정 <button class="btn btn-p btn-s m-only hidden" id="btnAddSch">등록</button></h3>
+            <h3>팀 일정 <button class="btn btn-p btn-s m-only hidden" onclick="addSchedule()">등록</button></h3>
             <div id="sch-list"></div>
         </div>
     </section>
 
     <section id="sec-lineup" class="app-sec hidden">
         <div class="card">
-            <h3>오늘의 라인업 <button class="btn btn-p btn-s m-only hidden" id="btnAddLine">작성</button></h3>
-            <div id="line-list"></div>
+            <h3>오늘의 라인업 <button class="btn btn-p btn-s m-only hidden" onclick="editLineup()">수정</button></h3>
+            <div class="field" id="field-view">
+                <div class="pos" style="top:85%; left:50%;" data-pos="C">포수<div class="p-name">-</div></div>
+                <div class="pos" style="top:65%; left:50%;" data-pos="P">투수<div class="p-name">-</div></div>
+                <div class="pos" style="top:55%; left:80%;" data-pos="1B">1루<div class="p-name">-</div></div>
+                <div class="pos" style="top:40%; left:65%;" data-pos="2B">2루<div class="p-name">-</div></div>
+                <div class="pos" style="top:40%; left:35%;" data-pos="SS">유격<div class="p-name">-</div></div>
+                <div class="pos" style="top:55%; left:20%;" data-pos="3B">3루<div class="p-name">-</div></div>
+                <div class="pos" style="top:20%; left:20%;" data-pos="LF">좌익<div class="p-name">-</div></div>
+                <div class="pos" style="top:15%; left:50%;" data-pos="CF">중견<div class="p-name">-</div></div>
+                <div class="pos" style="top:20%; left:80%;" data-pos="RF">우익<div class="p-name">-</div></div>
+            </div>
         </div>
     </section>
 
     <section id="sec-stats" class="app-sec hidden">
         <div class="card">
-            <div style="display:flex; gap:10px; margin-bottom:15px;">
-                <button class="btn btn-gray tab-btn active" id="tab-h-btn" style="flex:1;">타자</button>
-                <button class="btn btn-gray tab-btn" id="tab-p-btn" style="flex:1;">투수</button>
+            <div style="display:flex; gap:8px; margin-bottom:15px;">
+                <button class="btn btn-gray tab-btn active" id="tab-h-btn" onclick="setStatTab('h')">타자</button>
+                <button class="btn btn-gray tab-btn" id="tab-p-btn" onclick="setStatTab('p')">투수</button>
             </div>
-            <div id="h-area"><div id="h-list"></div></div>
-            <div id="p-area" class="hidden"><div id="p-list"></div></div>
-            <button class="btn btn-gray" id="btnOpenStat" style="margin-top:15px;">내 기록 수정</button>
+            <div id="stat-list"></div>
+            <button class="btn btn-p" onclick="openStatModal()" style="margin-top:10px;">내 기록 입력/수정</button>
         </div>
     </section>
 
     <section id="sec-chat" class="app-sec hidden">
-        <div class="card">
-            <h3>팀 단체 채팅</h3>
-            <div id="chat-window" style="height:300px; overflow-y:auto; margin-bottom:10px; background:#f8f9fa; padding:10px; border-radius:12px;"></div>
+        <div class="card" id="chat-member-box">
+            <h3>1:1 채팅 상대 선택</h3>
+            <div id="chat-player-list"></div>
+        </div>
+        <div class="card hidden" id="chat-room-box">
+            <h3 id="chat-target-name">이름</h3>
+            <div id="chat-msg-area" style="height:300px; overflow-y:auto; padding:10px; background:#f9f9f9; border-radius:10px; margin-bottom:10px;"></div>
             <div style="display:flex; gap:5px;">
-                <input type="text" id="chat-in" style="margin:0;" placeholder="메시지 입력">
-                <button class="btn btn-p btn-s" id="btnSendChat">전송</button>
+                <input type="text" id="chat-input" style="margin:0;" placeholder="메시지...">
+                <button class="btn btn-p btn-s" id="btnSendMsg">전송</button>
             </div>
+            <button class="btn" style="background:none; color:#999;" onclick="closeChat()">뒤로가기</button>
         </div>
     </section>
 
-    <section id="sec-profile" class="app-sec">
+    <section id="sec-profile" class="app-sec hidden">
         <div class="card">
-            <h3>내 정보</h3>
-            <div id="my-info-disp"></div>
-            <button class="btn btn-gray btn-s" onclick="document.getElementById('modal-profile').classList.remove('hidden')">프로필 수정</button>
+            <h3>프로필 설정</h3>
+            이름<input type="text" id="p-name">
+            등번호<input type="number" id="p-backno">
+            <button class="btn btn-p" onclick="updateProfile()">수정 완료</button>
         </div>
-        <div id="manager-zone" class="hidden">
-            <div class="card"><h3>가입 승인 대기</h3><div id="req-list"></div></div>
-            <div class="card"><h3>팀원 관리</h3><div id="player-list"></div></div>
+        <div class="card">
+            <h3>우리 팀원들</h3>
+            <div id="team-player-list"></div>
         </div>
     </section>
 
     <nav class="nav">
-        <div class="nav-item" onclick="goTab('schedule', this)"><span class="material-icons">event</span></div>
-        <div class="nav-item" onclick="goTab('lineup', this)"><span class="material-icons">format_list_numbered</span></div>
-        <div class="nav-item" onclick="goTab('stats', this)"><span class="material-icons">analytics</span></div>
-        <div class="nav-item" onclick="goTab('chat', this)"><span class="material-icons">forum</span></div>
-        <div class="nav-item active" onclick="goTab('profile', this)"><span class="material-icons">person</span></div>
+        <div class="nav-item active" onclick="goTab('schedule', this)"><span class="material-icons">calendar_today</span>일정</div>
+        <div class="nav-item" onclick="goTab('lineup', this)"><span class="material-icons">sports_baseball</span>라인업</div>
+        <div class="nav-item" onclick="goTab('stats', this)"><span class="material-icons">leaderboard</span>기록</div>
+        <div class="nav-item" onclick="goTab('chat', this)"><span class="material-icons">chat</span>채팅</div>
+        <div class="nav-item" onclick="goTab('profile', this)"><span class="material-icons">person</span>프로필</div>
     </nav>
 </div>
 
-<div id="modal-stat" class="modal hidden">
-    <div class="card" style="width:100%;">
-        <h3>기록 수정</h3>
-        타수<input type="number" id="m-ab"> 안타<input type="number" id="m-hit">
-        이닝<input type="number" step="0.1" id="m-ip"> 자책<input type="number" id="m-er">
-        <button class="btn btn-p" id="btnSaveStat">저장</button>
-        <button class="btn" onclick="this.closest('.modal').classList.add('hidden')">닫기</button>
+<div id="modal-overlay" class="modal hidden" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.6); z-index:2000; display:flex; justify-content:center; align-items:center; padding:20px;">
+    <div id="m-stat" class="card hidden" style="width:100%;">
+        <h3>기록 입력</h3>
+        <p style="font-size:11px; color:var(--a);">* 타자: 타수, 안타, 홈런, 볼넷, 사사구</p>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <input type="number" id="s-ab" placeholder="타수"> <input type="number" id="s-hit" placeholder="안타">
+            <input type="number" id="s-hr" placeholder="홈런"> <input type="number" id="s-bb" placeholder="볼넷">
+            <input type="number" id="s-hbp" placeholder="사사구">
+        </div>
+        <p style="font-size:11px; color:var(--p); margin-top:10px;">* 투수: 이닝, 자책, 볼넷, 삼진</p>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px;">
+            <input type="number" step="0.1" id="s-ip" placeholder="이닝(ex 5.1)"> <input type="number" id="s-er" placeholder="자책">
+            <input type="number" id="s-pbb" placeholder="투수볼넷"> <input type="number" id="s-k" placeholder="삼진">
+        </div>
+        <button class="btn btn-p" onclick="saveStats()">기록 저장</button>
+        <button class="btn" style="background:none;" onclick="closeModal()">닫기</button>
     </div>
 </div>
 
@@ -140,69 +160,72 @@
 
     const cfg = { apiKey: "AIzaSyCio2QRCCR5RhnA6l-pnNzMQ8cWKO0Z1Dg", authDomain: "busan260501-147bb.firebaseapp.com", projectId: "busan260501-147bb", appId: "1:322128107410:web:c6b8fbbda00a09fcae534b" };
     const app = initializeApp(cfg); const db = getFirestore(app); const auth = getAuth(app);
-    let uData = null, uid = null;
+    let uData = null, uid = null, currentTargetUid = null;
 
     onAuthStateChanged(auth, user => {
-        if(user) {
-            uid = user.uid;
-            onSnapshot(doc(db, "users", uid), s => {
-                uData = s.data();
-                if(!uData) return;
-                if(!uData.approved && uData.role !== 'manager') { alert("가입 승인 대기 중..."); signOut(auth); return; }
-                document.getElementById('auth-page').classList.add('hidden');
-                document.getElementById('main-app').classList.remove('hidden');
-                document.getElementById('teamNameDisp').innerText = uData.team;
-                if(uData.role === 'manager') document.querySelectorAll('.m-only').forEach(e => e.classList.remove('hidden'));
-                initApp();
-            });
-        }
+        if(!user) { location.href = "login.html"; return; } // 로그인 페이지가 따로 없으므로 편의상 가입 페이지라 가정
+        uid = user.uid;
+        onSnapshot(doc(db, "users", uid), s => {
+            uData = s.data();
+            if(!uData) return;
+            document.getElementById('teamNameDisp').innerText = uData.team;
+            document.getElementById('p-name').value = uData.name;
+            document.getElementById('p-backno').value = uData.backno || "";
+            if(uData.role === 'manager') document.querySelectorAll('.m-only').forEach(e => e.classList.remove('hidden'));
+            document.getElementById('main-app').classList.remove('hidden');
+            initApp();
+        });
     });
 
     function initApp() {
         const t = uData.team;
-        // 일정 로드
-        onSnapshot(query(collection(db, "schedules"), where("team", "==", t), orderBy("date")), s => {
+        // 일정 (깔끔 디자인)
+        onSnapshot(query(collection(db, "schedules"), where("team", "==", t), orderBy("date", "desc")), s => {
             const l = document.getElementById('sch-list'); l.innerHTML = "";
-            s.forEach(d => l.innerHTML += `<div class="list-item"><b>${d.data().date}</b> <span>${d.data().opp}</span></div>`);
-        });
-
-        // 라인업 로드
-        onSnapshot(query(collection(db, "lineups"), where("team", "==", t), orderBy("time", "desc")), s => {
-            const l = document.getElementById('line-list'); l.innerHTML = "";
-            s.forEach(d => l.innerHTML += `<div class="card" style="margin:5px 0;"><b>${d.data().title}</b><pre>${d.data().content}</pre></div>`);
-        });
-
-        // 채팅 로드
-        onSnapshot(query(collection(db, "chats"), where("team", "==", t), orderBy("time", "asc")), s => {
-            const w = document.getElementById('chat-window'); w.innerHTML = "";
-            s.forEach(d => w.innerHTML += `<div><b>${d.data().name}</b>: ${d.data().msg}</div>`);
-            w.scrollTop = w.scrollHeight;
-        });
-
-        // 기록 로드
-        onSnapshot(query(collection(db, "users"), where("team", "==", t), where("approved", "==", true)), s => {
-            const hl = document.getElementById('h-list'), pl = document.getElementById('p-list'), ml = document.getElementById('player-list');
-            hl.innerHTML = ""; pl.innerHTML = ""; ml.innerHTML = "";
-            let users = []; s.forEach(d => users.push(d.data()));
-            
-            users.sort((a,b)=>(b.hit/(a.ab||1))-(a.hit/(a.ab||1))).forEach(u => {
-                hl.innerHTML += `<div class="list-item"><span>${u.name}</span><b>${(u.hit/(u.ab||1)).toFixed(3)}</b></div>`;
-                ml.innerHTML += `<div class="list-item"><span>${u.name}</span> ${uData.role==='manager'&&u.uid!==uid?`<button class="kick-btn" onclick="kick('${u.uid}')">방출</button>`:''}</div>`;
+            s.forEach(d => {
+                const item = d.data();
+                l.innerHTML += `<div class="list-item">
+                    <div><b>${item.date}</b><br><small style="color:#666;">${item.todo}</small></div>
+                    ${uData.role==='manager'?`<span onclick="deleteDoc(doc(db,'schedules','${d.id}'))" class="material-icons" style="font-size:18px; color:#ccc;">delete</span>`:''}
+                </div>`;
             });
-            users.filter(u=>u.p_ip>0).forEach(u => {
-                pl.innerHTML += `<div class="list-item"><span>${u.name}</span><b>${((u.p_er*9)/u.p_ip).toFixed(2)}</b></div>`;
+        });
+
+        // 라인업
+        onSnapshot(doc(db, "lineups", t), s => {
+            if(!s.exists()) return;
+            const data = s.data();
+            Object.keys(data).forEach(pos => {
+                const el = document.querySelector(`.pos[data-pos="${pos}"] .p-name`);
+                if(el) el.innerText = data[pos];
             });
+        });
+
+        // 팀원 목록 (방출 기능 포함)
+        onSnapshot(query(collection(db, "users"), where("team", "==", t)), s => {
+            const pl = document.getElementById('team-player-list'); 
+            const cl = document.getElementById('chat-player-list');
+            pl.innerHTML = ""; cl.innerHTML = "";
+            s.forEach(d => {
+                const p = d.data();
+                // 프로필 탭 명단 (방출 버튼 포함)
+                pl.innerHTML += `<div class="list-item">
+                    <span>#${p.backno||'0'} ${p.name} (${p.role==='manager'?'감독':'선수'})</span>
+                    ${uData.role==='manager' && p.uid !== uid ? `<button class="kick-btn" onclick="kickUser('${p.uid}')">방출</button>` : ''}
+                </div>`;
+                // 채팅 상대 선택 명단
+                if(p.uid !== uid) {
+                    cl.innerHTML += `<div class="list-item" onclick="openChat('${p.uid}','${p.name}')">
+                        <span>${p.name}</span><span class="material-icons" style="font-size:18px; color:var(--p);">chevron_right</span>
+                    </div>`;
+                }
+            });
+            window.teamPlayers = s.docs.map(d => d.data());
+            renderStats('h'); // 기본 타자 기록
         });
     }
 
-    // 채팅 전송
-    document.getElementById('btnSendChat').onclick = async () => {
-        const m = document.getElementById('chat-in').value; if(!m) return;
-        await addDoc(collection(db, "chats"), { team: uData.team, name: uData.name, msg: m, time: serverTimestamp() });
-        document.getElementById('chat-in').value = "";
-    };
-
-    // 탭 이동
+    // 기능 함수들
     window.goTab = (id, el) => {
         document.querySelectorAll('.app-sec').forEach(s => s.classList.add('hidden'));
         document.getElementById('sec-'+id).classList.remove('hidden');
@@ -210,40 +233,117 @@
         el.classList.add('active');
     };
 
-    // 기록 수정
-    document.getElementById('btnOpenStat').onclick = () => {
-        document.getElementById('m-ab').value = uData.ab; document.getElementById('m-hit').value = uData.hit;
-        document.getElementById('m-ip').value = uData.p_ip; document.getElementById('m-er').value = uData.p_er;
-        document.getElementById('modal-stat').classList.remove('hidden');
-    };
-    document.getElementById('btnSaveStat').onclick = async () => {
-        await updateDoc(doc(db, "users", uid), { ab: Number(document.getElementById('m-ab').value), hit: Number(document.getElementById('m-hit').value), p_ip: Number(document.getElementById('m-ip').value), p_er: Number(document.getElementById('m-er').value) });
-        document.getElementById('modal-stat').classList.add('hidden');
+    window.kickUser = async (id) => {
+        if(confirm("이 선수를 방출하시겠습니까?")) await updateDoc(doc(db, "users", id), { team: "무소속" });
     };
 
-    // 감독 권한 기능 (알림창으로 간단 구현)
-    document.getElementById('btnAddSch').onclick = async () => {
-        const d = prompt("날짜 (예: 05/20)"), o = prompt("상대팀");
-        if(d && o) await addDoc(collection(db, "schedules"), { team: uData.team, date: d, opp: o });
-    };
-    document.getElementById('btnAddLine').onclick = async () => {
-        const t = prompt("라인업 제목"), c = prompt("내용 (선수 명단)");
-        if(t && c) await addDoc(collection(db, "lineups"), { team: uData.team, title: t, content: c, time: serverTimestamp() });
+    window.updateProfile = async () => {
+        const n = document.getElementById('p-name').value;
+        const b = Number(document.getElementById('p-backno').value);
+        await updateDoc(doc(db, "users", uid), { name: n, backno: b });
+        alert("수정되었습니다.");
     };
 
-    // 나머지 로그인/로그아웃/회원가입 로직 (기존과 동일하게 유지)
-    document.getElementById('btnLogin').onclick = () => signInWithEmailAndPassword(auth, document.getElementById('id-email').value, document.getElementById('id-pw').value).catch(e=>alert(e.message));
+    window.setStatTab = (type) => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById(`tab-${type}-btn`).classList.add('active');
+        renderStats(type);
+    };
+
+    function renderStats(type) {
+        const l = document.getElementById('stat-list'); l.innerHTML = "";
+        const players = window.teamPlayers || [];
+        if(type === 'h') {
+            players.sort((a,b) => (b.hit/(a.ab||1)) - (a.hit/(a.ab||1))).forEach(p => {
+                const avg = p.ab > 0 ? (p.hit/p.ab).toFixed(3) : ".000";
+                const obp = (p.ab+p.bb+p.hbp) > 0 ? ((p.hit+p.bb+p.hbp)/(p.ab+p.bb+p.hbp)).toFixed(3) : ".000";
+                l.innerHTML += `<div class="list-item"><span>${p.name}</span> <span>타율 <b>${avg}</b> / 출루율 <b>${obp}</b></span></div>`;
+            });
+        } else {
+            players.filter(p => p.p_ip > 0).sort((a,b) => ((a.p_er*9)/a.p_ip) - ((b.p_er*9)/b.p_ip)).forEach(p => {
+                const era = ((p.p_er*9)/p.p_ip).toFixed(2);
+                const k9 = ((p.p_k*9)/p.p_ip).toFixed(2);
+                l.innerHTML += `<div class="list-item"><span>${p.name} (${p.p_ip}이닝)</span> <span>ERA <b>${era}</b> / K/9 <b>${k9}</b></span></div>`;
+            });
+        }
+    }
+
+    window.openStatModal = () => {
+        document.getElementById('modal-overlay').classList.remove('hidden');
+        document.getElementById('m-stat').classList.remove('hidden');
+        document.getElementById('s-ab').value = uData.ab||0; document.getElementById('s-hit').value = uData.hit||0;
+        document.getElementById('s-hr').value = uData.hr||0; document.getElementById('s-bb').value = uData.bb||0;
+        document.getElementById('s-hbp').value = uData.hbp||0; document.getElementById('s-ip').value = uData.p_ip||0;
+        document.getElementById('s-er').value = uData.p_er||0; document.getElementById('s-pbb').value = uData.p_bb||0;
+        document.getElementById('s-k').value = uData.p_k||0;
+    };
+
+    window.saveStats = async () => {
+        const data = {
+            ab: Number(document.getElementById('s-ab').value), hit: Number(document.getElementById('s-hit').value),
+            hr: Number(document.getElementById('s-hr').value), bb: Number(document.getElementById('s-bb').value),
+            hbp: Number(document.getElementById('s-hbp').value), p_ip: Number(document.getElementById('s-ip').value),
+            p_er: Number(document.getElementById('s-er').value), p_bb: Number(document.getElementById('s-pbb').value),
+            p_k: Number(document.getElementById('s-k').value)
+        };
+        await updateDoc(doc(db, "users", uid), data);
+        closeModal();
+    };
+
+    window.addSchedule = async () => {
+        const d = prompt("날짜를 입력하세요 (ex 05/15)");
+        const t = prompt("일정 내용을 입력하세요 (ex 부산 원정 시합)");
+        if(d && t) await addDoc(collection(db, "schedules"), { team: uData.team, date: d, todo: t });
+    };
+
+    window.editLineup = async () => {
+        const pos = prompt("포지션(P, C, 1B, 2B, 3B, SS, LF, CF, RF)과 이름을 입력하세요 (ex P:김광현)");
+        if(!pos.includes(":")) return;
+        const [p, n] = pos.split(":").map(s => s.trim());
+        await setDoc(doc(db, "lineups", uData.team), { [p]: n }, { merge: true });
+    };
+
+    // 1:1 채팅 로직
+    window.openChat = (targetUid, targetName) => {
+        currentTargetUid = targetUid;
+        document.getElementById('chat-member-box').classList.add('hidden');
+        document.getElementById('chat-room-box').classList.remove('hidden');
+        document.getElementById('chat-target-name').innerText = targetName + "님과 채팅";
+        const chatKey = [uid, targetUid].sort().join("_");
+        onSnapshot(query(collection(db, "chats"), where("room", "==", chatKey), orderBy("time", "asc")), s => {
+            const area = document.getElementById('chat-msg-area'); area.innerHTML = "";
+            s.forEach(d => {
+                const c = d.data();
+                const isMe = c.sender === uid;
+                area.innerHTML += `<div class="chat-bubble ${isMe?'chat-me':'chat-you'}">${c.msg}</div>`;
+            });
+            area.scrollTop = area.scrollHeight;
+        });
+    };
+    document.getElementById('btnSendMsg').onclick = async () => {
+        const msg = document.getElementById('chat-input').value; if(!msg) return;
+        const chatKey = [uid, currentTargetUid].sort().join("_");
+        await addDoc(collection(db, "chats"), { room: chatKey, sender: uid, msg: msg, time: serverTimestamp() });
+        document.getElementById('chat-input').value = "";
+    };
+    window.closeChat = () => {
+        document.getElementById('chat-member-box').classList.remove('hidden');
+        document.getElementById('chat-room-box').classList.add('hidden');
+    };
+
+    window.openTeamSet = async () => {
+        const newName = prompt("새로운 팀 이름을 입력하세요", uData.team);
+        if(newName && newName !== uData.team) {
+            // 팀원들 소속 일괄 변경 (간략화)
+            const snap = await getDocs(query(collection(db, "users"), where("team", "==", uData.team)));
+            snap.forEach(async d => await updateDoc(doc(db, "users", d.id), { team: newName }));
+            alert("팀 이름이 변경되었습니다. 다시 로그인해주세요.");
+            signOut(auth).then(()=>location.reload());
+        }
+    };
+
+    window.closeModal = () => document.getElementById('modal-overlay').classList.add('hidden');
     document.getElementById('btnLogout').onclick = () => signOut(auth).then(()=>location.reload());
-    document.getElementById('btnJoin').onclick = async () => {
-        const e = document.getElementById('join-email').value, p = document.getElementById('join-pw').value, n = document.getElementById('join-name').value, t = document.getElementById('join-team').value, r = document.getElementById('join-role').value;
-        const res = await createUserWithEmailAndPassword(auth, e, p);
-        await setDoc(doc(db, "users", res.user.uid), { uid: res.user.uid, name: n, team: t, role: r, ab:0, hit:0, p_ip:0, p_er:0, approved: (r==='manager') });
-        alert("요청 완료"); location.reload();
-    };
-    window.toggleAuth = (isLogin) => {
-        document.getElementById('login-box').classList.toggle('hidden', !isLogin);
-        document.getElementById('join-box').classList.toggle('hidden', isLogin);
-    };
 </script>
 </body>
 </html>
