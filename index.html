@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>GS MASTER PRO</title>
+    <title>GS MASTER FINAL</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         :root { --p: #0747a6; --a: #d31145; --bg: #f0f2f5; --card: #ffffff; }
@@ -12,7 +12,7 @@
         body { font-family: 'Pretendard', sans-serif; display: flex; flex-direction: column; }
         .hidden { display: none !important; }
         
-        /* 레이아웃 */
+        /* 헤더 및 레이아웃 */
         header { flex-shrink: 0; background: var(--card); border-bottom: 1px solid #ddd; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; z-index: 1000; }
         header b { font-size: 18px; color: var(--p); }
         .content-area { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; }
@@ -24,7 +24,7 @@
         input, select { background: #f1f3f5; border: 1px solid #eee; border-radius: 12px; padding: 12px; margin-bottom: 10px; width: 100%; font-size: 15px; outline: none; }
         .btn { width: 100%; height: 50px; border-radius: 12px; font-weight: 700; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 15px; }
         .btn-p { background: var(--p); color: white; }
-        .btn-s { height: 32px; font-size: 11px; width: auto; padding: 0 12px; border-radius: 8px; }
+        .btn-s { height: 32px; font-size: 11px; width: auto; padding: 0 10px; border-radius: 8px; margin-left: 5px; }
         
         /* 네비게이션 */
         .nav { flex-shrink: 0; height: 80px; background: white; display: flex; border-top: 1px solid #eee; padding-bottom: env(safe-area-inset-bottom); }
@@ -34,14 +34,15 @@
 
         /* 야구장 */
         .field { position: relative; width: 100%; aspect-ratio: 1/1; background: #4CAF50; border-radius: 50% 50% 15px 15px; border: 4px solid #fff; }
-        .pos { position: absolute; width: 42px; height: 42px; background: white; border: 2.5px solid var(--p); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 8px; transform: translate(-50%, -50%); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .pos { position: absolute; width: 42px; height: 42px; background: white; border: 2.5px solid var(--p); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 8px; transform: translate(-50%, -50%); }
         .p-name { font-size: 9px; color: var(--p); font-weight: bold; }
 
         .list-item { padding: 15px 0; border-bottom: 1px solid #f1f3f5; display: flex; justify-content: space-between; align-items: center; }
-        .badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 5px; color: white; }
-        .bg-m { background: var(--a); } /* 감독 */
-        .bg-c { background: #ff9800; } /* 코치 */
-        .bg-p { background: #78909c; } /* 선수 */
+        .badge { font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-left: 5px; color: white; font-weight: bold; }
+        .bg-m { background: #d31145; } /* 감독 전용 레드 */
+        .bg-c { background: #ff9800; } /* 코치 전용 오렌지 */
+        .msg-me { align-self: flex-end; background: var(--p); color: white; padding: 8px 12px; border-radius: 10px; font-size: 13px; max-width: 80%; }
+        .msg-you { align-self: flex-start; background: #eee; color: black; padding: 8px 12px; border-radius: 10px; font-size: 13px; max-width: 80%; }
     </style>
 </head>
 <body>
@@ -53,24 +54,29 @@
             <div id="login-box">
                 <input type="email" id="id-email" placeholder="이메일">
                 <input type="password" id="id-pw" placeholder="비밀번호">
-                <button class="btn btn-p" onclick="login()">로그인</button>
+                <button class="btn btn-p" onclick="handleLogin()">로그인</button>
                 <p style="text-align:center; margin-top:15px;" onclick="toggleAuth(false)">계정이 없나요? <b>회원가입</b></p>
             </div>
             <div id="join-box" class="hidden">
                 <input type="text" id="join-name" placeholder="이름">
                 <input type="number" id="join-no" placeholder="등번호">
                 <input type="text" id="join-team" placeholder="팀 이름">
-                <select id="join-role">
-                    <option value="player">선수</option>
-                    <option value="coach">코치</option>
-                    <option value="manager">감독</option>
-                </select>
+                <select id="join-role"><option value="player">선수</option><option value="coach">코치</option><option value="manager">감독</option></select>
                 <input type="email" id="join-email" placeholder="이메일">
                 <input type="password" id="join-pw" placeholder="비밀번호">
-                <button class="btn btn-p" onclick="join()">가입하기</button>
+                <button class="btn btn-p" onclick="handleJoin()">가입하기</button>
                 <p style="text-align:center; margin-top:15px;" onclick="toggleAuth(true)">이미 계정이 있나요? <b>로그인</b></p>
             </div>
         </div>
+    </div>
+</div>
+
+<div id="wait-page" class="content-area hidden">
+    <div style="text-align:center; padding:100px 20px;">
+        <span class="material-icons" style="font-size:60px; color:#999;">hourglass_top</span>
+        <h2>가입 승인 대기 중</h2>
+        <p>감독님이 승인하면 서비스를 이용할 수 있습니다.</p>
+        <button class="btn btn-p" onclick="logout()" style="margin-top:20px;">로그아웃</button>
     </div>
 </div>
 
@@ -97,7 +103,7 @@
 
         <section id="sec-lineup" class="app-sec hidden">
             <div class="card">
-                <h3>오늘의 라인업</h3>
+                <h3>라인업 수정</h3>
                 <div class="field">
                     <div class="pos" style="top:85%; left:50%;" onclick="setLine('C')">포수<div id="p-C" class="p-name">-</div></div>
                     <div class="pos" style="top:65%; left:50%;" onclick="setLine('P')">투수<div id="p-P" class="p-name">-</div></div>
@@ -114,48 +120,57 @@
 
         <section id="sec-stats" class="app-sec hidden">
             <div class="card">
-                <h3>내 기록</h3>
-                <div id="my-stat-view" style="font-size:14px; line-height:1.6;">-</div>
+                <h3>내 상세 기록</h3>
+                <div id="my-stat-view" style="font-size:14px; line-height:1.8; background:#f9f9f9; padding:12px; border-radius:10px;">-</div>
                 <button class="btn btn-p" onclick="editStat()" style="margin-top:10px;">기록 수정</button>
             </div>
-            <div class="card"><h3>팀 타율 순위</h3><div id="rank-list"></div></div>
+            <div class="card"><h3>타율 랭킹</h3><div id="hit-rank"></div></div>
         </section>
 
         <section id="sec-chat" class="app-sec hidden">
-            <div class="card" id="chat-list-box"><h3>상대 선택</h3><div id="chat-player-list"></div></div>
+            <div class="card" id="chat-list-box"><h3>메시지 상대</h3><div id="chat-player-list"></div></div>
             <div class="card hidden" id="chat-room-box">
                 <h3 id="chat-title">-</h3>
-                <div id="chat-msgs" style="height:300px; overflow-y:auto; background:#f9f9f9; padding:10px; border-radius:10px; display:flex; flex-direction:column; gap:8px;"></div>
+                <div id="chat-msgs" style="height:350px; overflow-y:auto; display:flex; flex-direction:column; gap:10px; background:#f9f9f9; padding:10px; border-radius:12px;"></div>
                 <div style="display:flex; gap:5px; margin-top:10px;"><input type="text" id="chat-in" style="margin:0;"><button class="btn btn-p btn-s" onclick="sendMsg()">전송</button></div>
-                <button class="btn btn-s" style="background:none; color:#999; margin-top:5px;" onclick="closeChat()">뒤로</button>
+                <button class="btn btn-s" style="background:none; color:#999; margin-top:5px;" onclick="closeChat()">목록으로</button>
             </div>
         </section>
 
         <section id="sec-profile" class="app-sec hidden">
+            <div class="card manager-only hidden">
+                <h3>팀 관리</h3>
+                <input type="text" id="new-team-name" placeholder="새로운 팀 이름">
+                <button class="btn btn-p" onclick="updateTeamName()">팀명 일괄 변경</button>
+            </div>
             <div class="card">
-                <h3>프로필 수정</h3>
-                현재: <b id="p-name-disp">-</b> / <b id="p-no-disp">-</b>
+                <h3>내 정보 수정</h3>
+                <div style="margin-bottom:10px;">현재: <b id="p-name-disp">-</b> / <b id="p-no-disp">-</b></div>
                 <input type="text" id="up-name" placeholder="이름 변경">
                 <input type="number" id="up-no" placeholder="번호 변경">
-                <button class="btn btn-p" onclick="saveProfile()">저장</button>
+                <button class="btn btn-p" onclick="saveProfile()">실시간 저장</button>
             </div>
-            <div class="card"><h3>팀원 관리</h3><div id="team-list"></div></div>
+            <div class="card manager-only hidden">
+                <h3>가입 승인 요청</h3>
+                <div id="request-list"></div>
+            </div>
+            <div class="card"><h3>팀원 명단</h3><div id="team-list"></div></div>
         </section>
     </div>
 
     <nav class="nav">
         <div class="nav-item active" onclick="goTab('home', this)"><span class="material-icons">home</span>홈</div>
-        <div class="nav-item" onclick="goTab('schedule', this)"><span class="material-icons">event</span>일정</div>
+        <div class="nav-item" onclick="goTab('schedule', this)"><span class="material-icons">calendar_today</span>일정</div>
         <div class="nav-item" onclick="goTab('lineup', this)"><span class="material-icons">map</span>라인업</div>
         <div class="nav-item" onclick="goTab('stats', this)"><span class="material-icons">poll</span>기록</div>
         <div class="nav-item" onclick="goTab('chat', this)"><span class="material-icons">chat</span>채팅</div>
-        <div class="nav-item" onclick="goTab('profile', this)"><span class="material-icons">person</span>프로필</div>
+        <div class="nav-item" onclick="goTab('profile', this)"><span class="material-icons">account_circle</span>관리</div>
     </nav>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, doc, setDoc, onSnapshot, collection, query, where, orderBy, addDoc, updateDoc, serverTimestamp, deleteDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, onSnapshot, collection, query, where, orderBy, addDoc, updateDoc, serverTimestamp, getDocs, writeBatch } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
     import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const cfg = { apiKey: "AIzaSyCio2QRCCR5RhnA6l-pnNzMQ8cWKO0Z1Dg", authDomain: "busan260501-147bb.firebaseapp.com", projectId: "busan260501-147bb", appId: "1:322128107410:web:c6b8fbbda00a09fcae534b" };
@@ -167,14 +182,21 @@
             uid = user.uid;
             onSnapshot(doc(db, "users", uid), s => {
                 uData = s.data(); if(!uData) return;
+                if(uData.status === 'pending') {
+                    document.getElementById('auth-page').classList.add('hidden');
+                    document.getElementById('wait-page').classList.remove('hidden');
+                    return;
+                }
                 document.getElementById('auth-page').classList.add('hidden');
+                document.getElementById('wait-page').classList.add('hidden');
                 document.getElementById('main-app').classList.remove('hidden');
                 document.getElementById('teamNameDisp').innerText = uData.team;
                 document.getElementById('p-name-disp').innerText = uData.name;
                 document.getElementById('p-no-disp').innerText = uData.backno;
-                // 감독/코치만 버튼 활성화
-                if(uData.role==='manager' || uData.role==='coach') document.querySelectorAll('.admin-only').forEach(e=>e.classList.remove('hidden'));
-                loadData();
+
+                if(uData.role === 'manager' || uData.role === 'coach') document.querySelectorAll('.admin-only').forEach(e=>e.classList.remove('hidden'));
+                if(uData.role === 'manager') document.querySelectorAll('.manager-only').forEach(e=>e.classList.remove('hidden'));
+                loadMain();
             });
         } else {
             document.getElementById('auth-page').classList.remove('hidden');
@@ -182,65 +204,81 @@
         }
     });
 
-    function loadData() {
+    function loadMain() {
         const t = uData.team;
-        // 게시판 & 일정 & 라인업 로드
+        // 게시판 & 일정 & 라인업 실시간 로드
         onSnapshot(query(collection(db,"posts"), where("team","==",t), orderBy("time","desc")), s => {
             const l = document.getElementById('board-list'); l.innerHTML = "";
             s.forEach(d => { l.innerHTML += `<div class="list-item"><b>${d.data().name}:</b> ${d.data().msg}</div>`; });
         });
         onSnapshot(query(collection(db,"sch"), where("team","==",t), orderBy("date")), s => {
             const l = document.getElementById('sch-list'); l.innerHTML = "";
-            s.forEach(d => { l.innerHTML += `<div class="list-item"><b>${d.data().date}</b> <span>${d.data().msg}</span></div>`; });
+            s.forEach(d => { l.innerHTML += `<div class="list-item"><b>${d.data().date}</b> ${d.data().msg}</div>`; });
         });
         onSnapshot(doc(db, "lineups", t), s => {
-            if(s.exists()) for(let k in s.data()) { const e = document.getElementById('p-'+k); if(e) e.innerText = s.data()[k]; }
+            if(s.exists()) for(let k in s.data()) { const el = document.getElementById('p-'+k); if(el) el.innerText = s.data()[k]; }
         });
-        // 팀원 명단 (역할별 뱃지 & 방출 권한)
+        // 팀원 관리 & 승인 & 기록 랭킹
         onSnapshot(query(collection(db,"users"), where("team","==",t)), s => {
-            const tl = document.getElementById('team-list'); const cl = document.getElementById('chat-player-list');
-            const rl = document.getElementById('rank-list'); 
-            tl.innerHTML = ""; cl.innerHTML = ""; rl.innerHTML = "";
+            const tl = document.getElementById('team-list'); const rl = document.getElementById('request-list');
+            const cl = document.getElementById('chat-player-list'); const rk = document.getElementById('hit-rank');
+            tl.innerHTML = ""; rl.innerHTML = ""; cl.innerHTML = ""; rk.innerHTML = "";
             let pArr = [];
             s.forEach(d => {
-                const p = d.data(); pArr.push(p);
-                const badge = p.role==='manager' ? '<span class="badge bg-m">감독</span>' : (p.role==='coach' ? '<span class="badge bg-c">코치</span>' : '<span class="badge bg-p">선수</span>');
-                tl.innerHTML += `<div class="list-item"><span>#${p.backno} ${p.name} ${badge}</span> ${ (uData.role==='manager' || uData.role==='coach') && p.uid !== uid ? `<button class="btn-s" style="color:red;" onclick="kick('${p.uid}')">방출</button>` : ''}</div>`;
-                if(p.uid!==uid) cl.innerHTML += `<div class="list-item" onclick="openChat('${p.uid}','${p.name}')">${p.name} 님과 대화 <span class="material-icons">chevron_right</span></div>`;
+                const p = d.data();
+                if(p.status === 'approved') {
+                    pArr.push(p);
+                    const badge = p.role==='manager' ? '<span class="badge bg-m">감독</span>' : (p.role==='coach' ? '<span class="badge bg-c">코치</span>' : '');
+                    tl.innerHTML += `<div class="list-item">
+                        <span>#${p.backno} ${p.name} ${badge}</span>
+                        <div>
+                            ${uData.role==='manager' && p.uid!==uid ? `<button class="btn-s" onclick="promote('${p.uid}','${p.role}')">${p.role==='coach'?'강등':'승진'}</button>` : ''}
+                            ${uData.role==='manager' && p.uid!==uid ? `<button class="btn-s" style="color:red;" onclick="kick('${p.uid}')">방출</button>` : ''}
+                        </div>
+                    </div>`;
+                    if(p.uid!==uid) cl.innerHTML += `<div class="list-item" onclick="openChat('${p.uid}','${p.name}')">${p.name} 님과 대화 <span class="material-icons">chevron_right</span></div>`;
+                } else if(p.status === 'pending' && uData.role === 'manager') {
+                    rl.innerHTML += `<div class="list-item"><span>${p.name} (#${p.backno})</span> <div><button class="btn-s btn-p" onclick="approve('${p.uid}',true)">승인</button><button class="btn-s" onclick="approve('${p.uid}',false)">거절</button></div></div>`;
+                }
             });
-            // 타율 순위
+            // 랭킹 및 내 기록
             pArr.sort((a,b)=>(b.hit/(a.ab||1))-(a.hit/(a.ab||1))).forEach(p=>{
-                rl.innerHTML += `<div class="list-item"><span>${p.name}</span><b>${(p.hit/(p.ab||1)).toFixed(3)}</b></div>`;
-                if(p.uid===uid) document.getElementById('my-stat-view').innerHTML = `타수: ${p.ab} / 안타: ${p.hit} / 타율: <b>${(p.hit/(p.ab||1)).toFixed(3)}</b>`;
+                rk.innerHTML += `<div class="list-item"><span>${p.name}</span><b>${(p.hit/(p.ab||1)).toFixed(3)}</b></div>`;
+                if(p.uid===uid) document.getElementById('my-stat-view').innerHTML = `타수: ${p.ab} / 안타: ${p.hit} / 타율: <b>${(p.hit/(p.ab||1)).toFixed(3)}</b><br>이닝: ${p.ip || 0} / 실점: ${p.er || 0} / 방어율: ${( (p.er||0)*9 / (p.ip||1) ).toFixed(2)}`;
             });
         });
     }
 
-    // 기능 함수
-    window.saveProfile = async () => {
-        const n = document.getElementById('up-name').value;
-        const b = Number(document.getElementById('up-no').value);
-        if(n) await updateDoc(doc(db,"users",uid), { name:n, backno:b });
-        alert("수정되었습니다.");
+    // [기능] 승진/강등
+    window.promote = async (id, curRole) => {
+        const next = curRole === 'coach' ? 'player' : 'coach';
+        await updateDoc(doc(db,"users",id), { role: next });
     };
-    window.addPost = async () => {
-        const m = prompt("공지사항 입력");
-        if(m) await addDoc(collection(db,"posts"), { team:uData.team, name:uData.name, msg:m, time:serverTimestamp() });
+
+    // [기능] 팀명 일괄 변경
+    window.updateTeamName = async () => {
+        const n = document.getElementById('new-team-name').value;
+        if(!n || !confirm("팀 전체의 이름을 변경하시겠습니까?")) return;
+        const q = query(collection(db,"users"), where("team","==",uData.team));
+        const ss = await getDocs(q); const batch = writeBatch(db);
+        ss.forEach(d => batch.update(d.ref, { team: n }));
+        await batch.commit(); alert("변경 완료");
     };
-    window.addSch = async () => {
-        const d = prompt("날짜 (ex 05/20)"); const m = prompt("내용");
-        if(d && m) await addDoc(collection(db,"sch"), { team:uData.team, date:d, msg:m });
-    };
-    window.setLine = async (pos) => {
-        if(uData.role==='player') return;
-        const n = prompt(pos+" 포지션 선수 이름");
-        if(n) await setDoc(doc(db,"lineups",uData.team), { [pos]:n }, { merge:true });
-    };
-    window.kick = async (id) => { if(confirm("방출하시겠습니까?")) await updateDoc(doc(db,"users",id), { team:"무소속" }); };
+
+    // [기능] 기록 수정 (타자 & 투수)
     window.editStat = async () => {
-        const a = prompt("타수"); const h = prompt("안타");
-        if(a && h) await updateDoc(doc(db,"users",uid), { ab:Number(a), hit:Number(h) });
+        const ab = prompt("새 타수"); const hit = prompt("새 안타");
+        const ip = prompt("새 이닝"); const er = prompt("새 실점");
+        if(ab!==null && hit!==null) await updateDoc(doc(db,"users",uid), { ab:Number(ab), hit:Number(hit), ip:Number(ip||0), er:Number(er||0) });
     };
+
+    window.saveProfile = async () => {
+        const n = document.getElementById('up-name').value; const b = Number(document.getElementById('up-no').value);
+        if(n) await updateDoc(doc(db,"users",uid), { name:n, backno:b }); alert("실시간 반영 완료");
+    };
+
+    // 나머지 핵심 함수 (라인업, 채팅, 가입)
+    window.setLine = async (pos) => { if(uData.role==='player') return; const n = prompt(pos+" 배치 선수"); if(n) await setDoc(doc(db,"lineups",uData.team), {[pos]:n}, {merge:true}); };
     window.openChat = (tid, tn) => {
         curRoom = uid < tid ? uid+"_"+tid : tid+"_"+uid;
         document.getElementById('chat-title').innerText = tn + " 님";
@@ -248,33 +286,31 @@
         document.getElementById('chat-room-box').classList.remove('hidden');
         onSnapshot(query(collection(db,"chats",curRoom,"msgs"), orderBy("time")), s => {
             const a = document.getElementById('chat-msgs'); a.innerHTML = "";
-            s.forEach(d => { const m = d.data(); a.innerHTML += `<div style="align-self:${m.s===uid?'flex-end':'flex-start'}; background:${m.s===uid?var(--p):'#eee'}; color:${m.s===uid?'white':'black'}; padding:8px 12px; border-radius:10px; max-width:80%; font-size:13px;">${m.t}</div>`; });
+            s.forEach(d => { const m = d.data(); a.innerHTML += `<div class="${m.s===uid?'msg-me':'msg-you'}">${m.t}</div>`; });
             a.scrollTop = a.scrollHeight;
         });
     };
-    window.sendMsg = async () => {
-        const t = document.getElementById('chat-in').value; if(!t) return;
-        await addDoc(collection(db,"chats",curRoom,"msgs"), { s:uid, t, time:serverTimestamp() });
-        document.getElementById('chat-in').value = "";
-    };
+    window.sendMsg = async () => { const t = document.getElementById('chat-in').value; if(t) await addDoc(collection(db,"chats",curRoom,"msgs"), {s:uid, t, time:serverTimestamp()}); document.getElementById('chat-in').value=""; };
     window.closeChat = () => { document.getElementById('chat-list-box').classList.remove('hidden'); document.getElementById('chat-room-box').classList.add('hidden'); };
-    window.goTab = (id, el) => {
-        document.querySelectorAll('.app-sec').forEach(s => s.classList.add('hidden'));
-        document.getElementById('sec-'+id).classList.remove('hidden');
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        el.classList.add('active');
-    };
-    window.toggleAuth = (is) => { document.getElementById('login-box').classList.toggle('hidden', !is); document.getElementById('join-box').classList.toggle('hidden', is); };
-    window.login = () => signInWithEmailAndPassword(auth, document.getElementById('id-email').value, document.getElementById('id-pw').value).catch(e=>alert("로그인 실패"));
-    window.join = async () => {
+    window.approve = async (id, ok) => { if(ok) await updateDoc(doc(db,"users",id), {status:'approved'}); else await deleteDoc(doc(db,"users",id)); };
+    window.kick = async (id) => { if(confirm("방출하시겠습니까?")) await updateDoc(doc(db,"users",id), {team:'무소속', status:'denied'}); };
+    window.addPost = async () => { const m = prompt("공지사항"); if(m) await addDoc(collection(db,"posts"), {team:uData.team, name:uData.name, msg:m, time:serverTimestamp()}); };
+    window.addSch = async () => { const d = prompt("날짜"); const m = prompt("일정"); if(d && m) await addDoc(collection(db,"sch"), {team:uData.team, date:d, msg:m}); };
+    window.handleLogin = () => signInWithEmailAndPassword(auth, document.getElementById('id-email').value, document.getElementById('id-pw').value).catch(()=>alert("로그인 실패"));
+    window.handleJoin = async () => {
         const e = document.getElementById('join-email').value, p = document.getElementById('join-pw').value;
         const n = document.getElementById('join-name').value, t = document.getElementById('join-team').value;
         const no = Number(document.getElementById('join-no').value), r = document.getElementById('join-role').value;
-        const res = await createUserWithEmailAndPassword(auth, e, p);
-        await setDoc(doc(db,"users",res.user.uid), { uid:res.user.uid, name:n, team:t, backno:no, role:r, ab:0, hit:0 });
-        location.reload();
+        try {
+            const res = await createUserWithEmailAndPassword(auth, e, p);
+            const status = (r === 'manager') ? 'approved' : 'pending';
+            await setDoc(doc(db,"users",res.user.uid), { uid:res.user.uid, name:n, team:t, backno:no, role:r, status, ab:0, hit:0, ip:0, er:0 });
+            alert("가입 요청이 완료되었습니다.");
+        } catch(err) { alert(err.message); }
     };
     window.logout = () => signOut(auth).then(()=>location.reload());
+    window.toggleAuth = (is) => { document.getElementById('login-box').classList.toggle('hidden', !is); document.getElementById('join-box').classList.toggle('hidden', is); };
+    window.goTab = (id, el) => { document.querySelectorAll('.app-sec').forEach(s => s.classList.add('hidden')); document.getElementById('sec-'+id).classList.remove('hidden'); document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); el.classList.add('active'); };
 </script>
 </body>
 </html>
