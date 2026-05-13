@@ -255,8 +255,19 @@
                 hL.innerHTML += `<tr><td>${p.backnum||'-'}</td><td>${p.name}</td><td>${avg}</td><td>${obp}</td><td>${p.hit}</td><td>${p.hr}</td></tr>`;
                 pL.innerHTML += `<tr><td>${p.backnum||'-'}</td><td>${p.name}</td><td>${era}</td><td>${p.p_win}</td><td>${p.p_k||0}</td><td>${p.p_ip}</td></tr>`;
                 
-                const kickBtn = (uData.role === 'manager' && d.id !== uid) ? `<button onclick="kickUser('${d.id}')" style="background:var(--a); color:white; border:none; padding:4px 8px; border-radius:5px; font-size:10px;">방출</button>` : '';
-                uL.innerHTML += `<div class="req-item">No.${p.backnum || '??'} <b>${p.name}</b> (${p.role}) ${kickBtn}</div>`;
+                // 감독 전용 관리 버튼 (방출, 승진/강등)
+                let adminControls = "";
+                if(uData.role === 'manager' && d.id !== uid) {
+                    const roleAction = p.role === 'player' ? 'coach' : 'player';
+                    const roleLabel = p.role === 'player' ? '코치 승진' : '선수 강등';
+                    adminControls = `
+                        <div style="display:flex; gap:5px;">
+                            <button onclick="changeRole('${d.id}', '${roleAction}')" style="background:#0747a6; color:white; border:none; padding:4px 8px; border-radius:5px; font-size:10px;">${roleLabel}</button>
+                            <button onclick="kickUser('${d.id}')" style="background:var(--a); color:white; border:none; padding:4px 8px; border-radius:5px; font-size:10px;">방출</button>
+                        </div>`;
+                }
+                const roleBadge = p.role === 'manager' ? '[감독]' : (p.role === 'coach' ? '[코치]' : '');
+                uL.innerHTML += `<div class="req-item"><div>No.${p.backnum || '??'} <b>${p.name}</b> <small>${roleBadge}</small></div>${adminControls}</div>`;
             });
         });
         onSnapshot(query(collection(db, "lineup"), where("team", "==", uData.team)), (snaps) => {
@@ -269,6 +280,14 @@
         if(confirm("정말 이 팀원을 방출하시겠습니까?")) {
             await deleteDoc(doc(db, "users", targetUid));
             alert("방출 완료");
+        }
+    };
+
+    window.changeRole = async (targetUid, newRole) => {
+        const msg = newRole === 'coach' ? "코치로 승진시키겠습니까?" : "선수로 강등시키겠습니까?";
+        if(confirm(msg)) {
+            await updateDoc(doc(db, "users", targetUid), { role: newRole });
+            alert("권한 변경 완료");
         }
     };
 
