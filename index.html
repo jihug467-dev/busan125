@@ -28,6 +28,7 @@
         .msg { margin-bottom: 8px; padding: 8px 12px; border-radius: 12px; max-width: 75%; font-size: 13px; position: relative; }
         .msg.me { background: var(--p); color: white; margin-left: auto; }
         .msg.you { background: #e9e9eb; color: #333; }
+        .msg-info { font-size: 10px; opacity: 0.8; margin-bottom: 2px; }
 
         .req-item { background: #fff; padding: 12px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #eee; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .field-container { position: relative; width: 100%; aspect-ratio: 1/1; background: #2e7d32; border-radius: 10px; border: 3px solid #fff; }
@@ -57,7 +58,7 @@
 
 <div id="main-app" class="hidden">
     <header>
-        <span id="teamNameDisp" style="font-weight:bold;">팀명</span>
+        <span id="teamNameDisp" style="font-weight:bold; cursor:pointer;" onclick="editTeamName()">팀명</span>
         <span class="material-icons" id="btn-logout-icon" style="cursor:pointer;">logout</span>
     </header>
 
@@ -221,41 +222,71 @@
 
     onAuthStateChanged(auth, async (user) => {
         if(user) {
-            uid = user.uid; const s = await getDoc(doc(db, "users", uid));
-            if(s.exists()) {
-                uData = s.data(); if(!uData.approved) { alert("승인 대기 중"); signOut(auth); return; }
-                document.getElementById('auth-page').classList.add('hidden');
-                document.getElementById('main-app').classList.remove('hidden');
-                document.getElementById('teamNameDisp').innerText = uData.team;
-                if(uData.role === 'manager') { document.querySelectorAll('.mgr-only').forEach(el => el.style.display = 'block'); loadRequests(); }
-                document.getElementById('my-backnum').value = uData.backnum || "";
-                initRealtime();
-            }
+            uid = user.uid; 
+            // 유저 데이터 실시간 감시 (팀 이름 변경 반영용)
+            onSnapshot(doc(db, "users", uid), (s) => {
+                if(s.exists()) {
+                    uData = s.data();
+                    if(!uData.approved) { alert("승인 대기 중"); signOut(auth); return; }
+                    document.getElementById('auth-page').classList.add('hidden');
+                    document.getElementById('main-app').classList.remove('hidden');
+                    document.getElementById('teamNameDisp').innerText = uData.team;
+                    if(uData.role === 'manager') { 
+                        document.querySelectorAll('.mgr-only').forEach(el => el.style.display = 'block'); 
+                        loadRequests(); 
+                    }
+                    document.getElementById('my-backnum').value = uData.backnum || "";
+                    initRealtime();
+                }
+            });
         }
     });
+
+    // 팀 이름 실시간 변경 기능
+    window.editTeamName = async () => {
+        if(uData.role !== 'manager') return;
+        const newTeam = prompt("새로운 팀 이름을 입력하세요:", uData.team);
+        if(newTeam && newTeam !== uData.team) {
+            if(confirm(`팀 전체의 이름을 '${newTeam}'으로 변경하시겠습니까?`)) {
+                const snaps = await getDocs(query(collection(db, "users"), where("team", "==", uData.team)));
+                snaps.forEach(async (d) => {
+                    await updateDoc(doc(db, "users", d.id), { team: newTeam });
+                });
+                alert("팀 이름이 변경되었습니다.");
+            }
+        }
+    };
 
     function initRealtime() {
         onSnapshot(query(collection(db, "sch"), where("team", "==", uData.team), orderBy("date", "asc")), (snaps) => {
             const list = document.getElementById('schedule-list'); list.innerHTML = "";
             snaps.forEach(d => { list.innerHTML += `<div style="padding:8px; border-left:4px solid var(--a); margin-bottom:5px; background:#fff;"><b>${d.data().date}</b>: ${d.data().text}</div>`; });
         });
+
+        // 게시판 실시간 감시 (3일 지난 글 자동 제외)
         onSnapshot(query(collection(db, "board"), where("team", "==", uData.team), orderBy("time", "desc")), (snaps) => {
             const list = document.getElementById('board-list'); list.innerHTML = "";
-            snaps.forEach(d => { list.innerHTML += `<div style="padding:10px; border-bottom:1px solid #eee;"><b>${d.data().name}</b>: ${d.data().msg}</div>`; });
+            const threeDaysAgo = Date.now() - (3 * 24 * 60 * 60 * 1000); // 3일 전 시간
+            snaps.forEach(d => {
+                const data = d.data();
+                if(data.time > threeDaysAgo) {
+                    list.innerHTML += `<div style="padding:10px; border-bottom:1px solid #eee;"><b>${data.name}</b>: ${data.msg}</div>`;
+                }
+            });
         });
+
         onSnapshot(query(collection(db, "users"), where("team", "==", uData.team), where("approved", "==", true)), (snaps) => {
             const hL = document.getElementById('h-list'), pL = document.getElementById('p-list'), uL = document.getElementById('player-list');
             hL.innerHTML = ""; pL.innerHTML = ""; uL.innerHTML = "";
             snaps.forEach(d => {
                 const p = d.data(); 
                 const avg = p.ab > 0 ? (p.hit / p.ab).toFixed(3) : ".000";
-                const obp = p.ab > 0 ? ((p.hit + (p.bb || 0)) / p.ab).toFixed(3) : ".000";
+                const obp = p.ab > 0 ? ((p.hit + (p.bb || 0)) / (p.ab + (p.bb || 0) || 1)).toFixed(3) : ".000";
                 const era = p.p_ip > 0 ? ((p.p_er * 7) / p.p_ip).toFixed(2) : "0.00";
                 
                 hL.innerHTML += `<tr><td>${p.backnum||'-'}</td><td>${p.name}</td><td>${avg}</td><td>${obp}</td><td>${p.hit}</td><td>${p.hr}</td></tr>`;
                 pL.innerHTML += `<tr><td>${p.backnum||'-'}</td><td>${p.name}</td><td>${era}</td><td>${p.p_win}</td><td>${p.p_k||0}</td><td>${p.p_ip}</td></tr>`;
                 
-                // 감독 전용 관리 버튼 (방출, 승진/강등)
                 let adminControls = "";
                 if(uData.role === 'manager' && d.id !== uid) {
                     const roleAction = p.role === 'player' ? 'coach' : 'player';
@@ -270,6 +301,7 @@
                 uL.innerHTML += `<div class="req-item"><div>No.${p.backnum || '??'} <b>${p.name}</b> <small>${roleBadge}</small></div>${adminControls}</div>`;
             });
         });
+
         onSnapshot(query(collection(db, "lineup"), where("team", "==", uData.team)), (snaps) => {
             document.querySelectorAll('.player-node p').forEach(p => p.innerText = "-");
             snaps.forEach(d => { const l = d.data(); const el = document.getElementById('txt-' + l.pos); if(el) el.innerText = l.name; });
@@ -313,16 +345,20 @@
         });
     }
 
+    // 채팅방 열기 및 실시간 리스너 수정
     window.openChatRoom = (pid, pname) => {
         currentChatPartnerId = pid;
         document.getElementById('chat-target-name').innerText = pname + " 님";
         document.getElementById('sub-chat-list-view').classList.add('hidden');
         document.getElementById('sub-chat-room-view').classList.remove('hidden');
+        
         if(chatUnsub) chatUnsub();
+        // 채팅 쿼리 최적화 (팀 필터링 + 시간순 정렬)
         chatUnsub = onSnapshot(query(collection(db, "chats"), where("team", "==", uData.team), orderBy("time", "asc")), (snaps) => {
             const list = document.getElementById('chat-list'); list.innerHTML = "";
             snaps.forEach(d => {
                 const c = d.data();
+                // 나와 상대방 사이의 메시지만 필터링
                 if((c.sender === uid && c.receiver === currentChatPartnerId) || (c.sender === currentChatPartnerId && c.receiver === uid)) {
                     list.innerHTML += `<div class="msg ${c.sender === uid ? 'me' : 'you'}"><div class="msg-info">${c.name}</div>${c.msg}</div>`;
                 }
@@ -330,11 +366,19 @@
             list.scrollTop = list.scrollHeight;
         });
     };
-    window.closeChatRoom = () => { document.getElementById('sub-chat-room-view').classList.add('hidden'); document.getElementById('sub-chat-list-view').classList.remove('hidden'); };
+
+    window.closeChatRoom = () => { if(chatUnsub) chatUnsub(); document.getElementById('sub-chat-room-view').classList.add('hidden'); document.getElementById('sub-chat-list-view').classList.remove('hidden'); };
 
     document.getElementById('btnChatSend').onclick = async () => {
-        const msg = document.getElementById('chat-input').value; if(!msg) return;
-        await addDoc(collection(db, "chats"), { team: uData.team, sender: uid, receiver: currentChatPartnerId, name: uData.name, msg, time: Date.now() });
+        const msg = document.getElementById('chat-input').value; if(!msg || !currentChatPartnerId) return;
+        await addDoc(collection(db, "chats"), { 
+            team: uData.team, 
+            sender: uid, 
+            receiver: currentChatPartnerId, 
+            name: uData.name, 
+            msg: msg, 
+            time: Date.now() 
+        });
         document.getElementById('chat-input').value = "";
     };
 
@@ -349,6 +393,7 @@
             });
         });
     }
+
     window.handleApprove = async (id, ok) => { if(ok) await updateDoc(doc(db, "users", id), { approved: true }); else await deleteDoc(doc(db, "users", id)); };
     document.getElementById('btnAddSch').onclick = async () => { await addDoc(collection(db, "sch"), { team: uData.team, date: document.getElementById('sch-date').value, text: document.getElementById('sch-text').value }); };
     document.getElementById('btnPost').onclick = async () => { await addDoc(collection(db, "board"), { team: uData.team, name: uData.name, msg: document.getElementById('board-msg').value, time: Date.now() }); document.getElementById('board-msg').value=""; };
