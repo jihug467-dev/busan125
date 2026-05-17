@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GS MASTER - COMPLETE FINAL</title>
+    <title>GS MASTER - TOTAL</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         :root { --p: #072754; --a: #d31145; --bg: #f4f7f6; }
@@ -17,16 +17,19 @@
         .nav-item { flex: 1; text-align: center; padding-top: 10px; color: #888; cursor: pointer; font-size: 12px; }
         .nav-item.active { color: var(--p); font-weight: bold; }
         .mgr-only { display: none; }
+        
         .stat-table { width: 100%; border-collapse: collapse; font-size: 11px; text-align: center; margin-top: 10px; }
         .stat-table th { background: #f8f9fa; padding: 10px 3px; border-bottom: 2px solid #eee; }
         .stat-table td { padding: 10px 3px; border-bottom: 1px solid #eee; }
         .tab-btn { padding: 8px 15px; border-radius: 20px; border: none; cursor: pointer; background: #eee; font-size: 12px; }
         .tab-btn.active { background: var(--p); color: white; }
-        .chat-box { height: 250px; overflow-y: auto; background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #eee; }
-        .msg { margin-bottom: 8px; padding: 8px 12px; border-radius: 12px; max-width: 75%; font-size: 13px; }
+
+        .chat-box { height: 300px; overflow-y: auto; background: #f9f9f9; padding: 10px; border-radius: 8px; margin-bottom: 10px; border: 1px solid #eee; }
+        .msg { margin-bottom: 8px; padding: 8px 12px; border-radius: 12px; max-width: 75%; font-size: 13px; position: relative; }
         .msg.me { background: var(--p); color: white; margin-left: auto; }
         .msg.you { background: #e9e9eb; color: #333; }
-        .req-item { background: #fff; padding: 12px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #eee; }
+
+        .req-item { background: #fff; padding: 12px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; border: 1px solid #eee; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         .field-container { position: relative; width: 100%; aspect-ratio: 1/1; background: #2e7d32; border-radius: 10px; border: 3px solid #fff; }
         .player-node { position: absolute; width: 45px; height: 45px; background: white; border: 2px solid var(--p); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 8px; font-weight: bold; transform: translate(-50%, -50%); }
     </style>
@@ -47,38 +50,29 @@
         <input type="password" id="join-pw" placeholder="비밀번호">
         <input type="text" id="join-team" placeholder="팀 이름">
         <select id="join-role"><option value="player">선수</option><option value="manager">감독</option></select>
-        <button class="btn" style="background:var(--a);" id="btnJoin">회원가입 요청</button>
+        <button class="btn" style="background:var(--a);" id="btnJoin">회원가입 완료</button>
         <p onclick="toggleAuth()" style="text-align:center; font-size:13px; margin-top:15px; color:#666; cursor:pointer;">돌아가기</p>
-    </div>
-</div>
-
-<div id="waiting-page" class="hidden" style="text-align:center; padding:50px 20px;">
-    <div class="card">
-        <span class="material-icons" style="font-size:60px; color:var(--a);">hourglass_empty</span>
-        <h2>가입 승인 대기 중</h2>
-        <p>감독님이 승인하시면 자동으로 로그인됩니다.</p>
-        <button class="btn" style="background:#666;" onclick="location.reload()">새로고침 확인</button>
     </div>
 </div>
 
 <div id="main-app" class="hidden">
     <header>
-        <span id="teamNameDisp" style="font-weight:bold; cursor:pointer;" onclick="editTeamName()">팀명</span>
+        <span id="teamNameDisp" style="font-weight:bold;">팀명</span>
         <span class="material-icons" id="btn-logout-icon" style="cursor:pointer;">logout</span>
     </header>
 
     <section id="sec-home" class="app-sec">
-        <div class="card mgr-only" id="mgr-req-card" style="border:2px solid var(--a); display:none;">
-            <h3 style="color:var(--a); margin-top:0;">🔔 가입 승인 요청</h3>
+        <div class="card mgr-only" id="mgr-req-card" style="border:2px solid var(--a);">
+            <h3 style="color:var(--a); margin-top:0;">🔔 가입 승인 대기</h3>
             <div id="request-list"></div>
         </div>
         <div class="card">
-            <h3>📅 오늘 이후 일정</h3>
+            <h3>📅 경기/훈련 일정</h3>
             <div id="schedule-list"></div>
-            <div class="mgr-only" style="margin-top:15px;">
+            <div class="mgr-only" style="margin-top:15px; padding:10px; background:#f9f9f9; border-radius:10px;">
                 <input type="date" id="sch-date">
-                <input type="text" id="sch-text" placeholder="일정 내용">
-                <button class="btn" style="background:var(--p);" id="btnAddSch">일정 추가</button>
+                <input type="text" id="sch-text" placeholder="내용 입력">
+                <button class="btn" style="background:var(--p);" id="btnAddSch">일정 등록</button>
             </div>
         </div>
     </section>
@@ -90,33 +84,38 @@
         </div>
         <div id="sub-board-view" class="card">
             <div id="board-list" style="max-height: 250px; overflow-y: auto; border-bottom: 1px solid #eee; margin-bottom:10px;"></div>
-            <textarea id="board-msg" placeholder="내용 입력..." rows="2"></textarea>
-            <button class="btn" style="background:var(--p);" id="btnPost">글 등록</button>
+            <textarea id="board-msg" placeholder="글 작성" rows="2"></textarea>
+            <button class="btn" style="background:var(--p);" id="btnPost">등록</button>
         </div>
-        <div id="sub-chat-list-view" class="card hidden"><div id="chat-user-list"></div></div>
+        <div id="sub-chat-list-view" class="card hidden">
+            <div id="chat-user-list"></div>
+        </div>
         <div id="sub-chat-room-view" class="card hidden">
             <div style="display:flex; align-items:center; margin-bottom:10px; gap:10px;">
-                <span class="material-icons" onclick="closeChatRoom()" style="cursor:pointer;">arrow_back</span>
-                <h3 id="chat-target-name" style="margin:0;">-</h3>
+                <span class="material-icons" onclick="closeChatRoom()" style="cursor:pointer; color:#666;">arrow_back</span>
+                <h3 id="chat-target-name" style="margin:0;">대화중</h3>
             </div>
             <div id="chat-list" class="chat-box"></div>
-            <div style="display:flex; gap:5px;"><input type="text" id="chat-input"><button class="btn" style="background:var(--a); width:60px; margin:0;" id="btnChatSend">전송</button></div>
+            <div style="display:flex; gap:5px;">
+                <input type="text" id="chat-input" placeholder="메시지...">
+                <button class="btn" style="background:var(--a); width:70px; margin:0;" id="btnChatSend">전송</button>
+            </div>
         </div>
     </section>
 
     <section id="sec-stats" class="app-sec hidden">
         <div class="card">
             <h3>📊 팀 기록실</h3>
-            <div style="display:flex; gap:5px; margin-bottom:10px;">
+            <div style="display:flex; gap:5px;">
                 <button class="tab-btn active" id="btn-tab-h" onclick="changeStatTab('h')">타자</button>
                 <button class="tab-btn" id="btn-tab-p" onclick="changeStatTab('p')">투수</button>
             </div>
             <table class="stat-table" id="h-table">
-                <thead><tr><th>No.</th><th>이름</th><th>타율</th><th>출루율</th><th>안타</th></tr></thead>
+                <thead><tr><th>No.</th><th>이름</th><th>타율</th><th>출루율</th><th>안타</th><th>홈런</th></tr></thead>
                 <tbody id="h-list"></tbody>
             </table>
             <table class="stat-table hidden" id="p-table">
-                <thead><tr><th>No.</th><th>이름</th><th>ERA</th><th>승</th><th>삼진</th></tr></thead>
+                <thead><tr><th>No.</th><th>이름</th><th>ERA</th><th>승</th><th>삼진</th><th>이닝</th></tr></thead>
                 <tbody id="p-list"></tbody>
             </table>
             <button class="btn" style="background:var(--p); margin-top:15px;" onclick="openMyStat()">내 기록 수정하기</button>
@@ -138,29 +137,29 @@
             </div>
             <div class="mgr-only" style="margin-top:10px;">
                 <select id="l-pos-select"><option value="P">투수</option><option value="C">포수</option><option value="1B">1루</option><option value="2B">2루</option><option value="3B">3루</option><option value="SS">유격</option><option value="LF">좌익</option><option value="CF">중견</option><option value="RF">우익</option></select>
-                <input type="text" id="l-name" placeholder="선수명 입력">
-                <button class="btn" style="background:var(--a);" id="btnAddLineup">해당 포지션 저장</button>
+                <input type="text" id="l-name" placeholder="선수 이름">
+                <button class="btn" style="background:var(--a);" id="btnAddLineup">배치</button>
             </div>
         </div>
     </section>
 
     <section id="sec-players" class="app-sec hidden">
         <div class="card" style="border:2px solid var(--p);">
-            <h3>👤 내 정보 관리</h3>
-            <div style="display:flex; gap:10px;">
-                <input type="number" id="my-backnum" placeholder="등번호" oninput="if(this.value.length > 3) this.value = this.value.slice(0, 3);" style="width:120px; margin:0;">
-                <button class="btn" style="background:var(--p); margin:0;" id="btnUpdateProfile">번호 저장</button>
+            <h3>👤 내 정보</h3>
+            <div style="display:flex; gap:10px; align-items:center;">
+                <input type="number" id="my-backnum" placeholder="등번호" style="margin:0; width:80px;">
+                <button class="btn" style="background:var(--p); width:80px; margin:0;" id="btnUpdateProfile">변경</button>
             </div>
         </div>
         <div class="card">
-            <h3>👥 팀 멤버 (감독 전용 관리)</h3>
+            <h3>👥 팀원 명단</h3>
             <div id="player-list"></div>
         </div>
     </section>
 
     <nav class="nav">
         <div class="nav-item active" onclick="showSec('home')"><span class="material-icons">home</span><br>홈</div>
-        <div class="nav-item" onclick="showSec('board')"><span class="material-icons">chat</span><br>게시판</div>
+        <div class="nav-item" onclick="showSec('board')"><span class="material-icons">chat</span><br>게시판/톡</div>
         <div class="nav-item" onclick="showSec('stats')"><span class="material-icons">leaderboard</span><br>기록</div>
         <div class="nav-item" onclick="showSec('lineup')"><span class="material-icons">groups</span><br>라인업</div>
         <div class="nav-item" onclick="showSec('players')"><span class="material-icons">person</span><br>선수단</div>
@@ -168,20 +167,21 @@
 </div>
 
 <div id="stat-modal" class="hidden" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; display:flex; justify-content:center; align-items:center;">
-    <div class="card" style="width:90%;">
-        <h3>내 기록 입력 (숫자만)</h3>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px;">
-            <div><small>타수</small><input type="number" id="m-ab"></div>
-            <div><small>안타</small><input type="number" id="m-hit"></div>
-            <div><small>볼넷</small><input type="number" id="m-bb"></div>
-            <div><small>홈런</small><input type="number" id="m-hr"></div>
-            <div><small>자책점</small><input type="number" id="m-p-er"></div>
-            <div><small>이닝</small><input type="number" id="m-p-ip"></div>
-            <div><small>승리</small><input type="number" id="m-p-win"></div>
-            <div><small>삼진</small><input type="number" id="m-p-k"></div>
+    <div class="card" style="width:90%; max-width:400px;">
+        <h3>기록 수정</h3>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:8px;">
+            <div><label style="font-size:11px;">타수</label><input type="number" id="m-ab"></div>
+            <div><label style="font-size:11px;">안타</label><input type="number" id="m-hit"></div>
+            <div><label style="font-size:11px;">볼넷(BB)</label><input type="number" id="m-bb"></div>
+            <div><label style="font-size:11px;">홈런</label><input type="number" id="m-hr"></div>
+            <div style="grid-column: span 2; height:1px; background:#eee; margin:5px 0;"></div>
+            <div><label style="font-size:11px;">자책점</label><input type="number" id="m-p-er"></div>
+            <div><label style="font-size:11px;">이닝</label><input type="number" id="m-p-ip"></div>
+            <div><label style="font-size:11px;">승리</label><input type="number" id="m-p-win"></div>
+            <div><label style="font-size:11px;">삼진(K)</label><input type="number" id="m-p-k"></div>
         </div>
-        <button class="btn" style="background:var(--p); margin-top:10px;" id="btnUpdateStat">기록 저장하기</button>
-        <button class="btn" style="background:#666;" onclick="closeModal()">닫기</button>
+        <button class="btn" style="background:var(--p); margin-top:10px;" id="btnUpdateStat">저장</button>
+        <button class="btn" style="background:#666;" onclick="closeModal()">취소</button>
     </div>
 </div>
 
@@ -199,189 +199,198 @@
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
-    let uData = null, uid = null, chatUnsub = null, currentChatPartnerId = null;
+    let uData = null, uid = null, currentChatPartnerId = null, chatUnsub = null;
 
     window.toggleAuth = () => { document.getElementById('login-box').classList.toggle('hidden'); document.getElementById('join-box').classList.toggle('hidden'); };
-
-    // 1. 회원가입/로그인
+    
     document.getElementById('btnJoin').onclick = async () => {
         const name = document.getElementById('join-name').value, email = document.getElementById('join-email').value, pw = document.getElementById('join-pw').value, team = document.getElementById('join-team').value, role = document.getElementById('join-role').value;
         try {
             const uc = await createUserWithEmailAndPassword(auth, email, pw);
-            await setDoc(doc(db, "users", uc.user.uid), { name, email, team, role, approved: (role === 'manager'), backnum: "", ab:0, hit:0, bb:0, hr:0, p_er:0, p_ip:0, p_win:0, p_k:0 });
-            alert("요청 완료! 감독님 승인 후 이용 가능합니다."); location.reload();
+            await setDoc(doc(db, "users", uc.user.uid), { 
+                name, email, team, role, approved: (role === 'manager'), 
+                backnum: "", ab:0, hit:0, bb:0, hr:0, p_er:0, p_ip:0, p_win:0, p_k:0 
+            });
+            alert("가입 요청 완료!"); signOut(auth); location.reload();
         } catch(e) { alert(e.message); }
     };
 
     document.getElementById('btnLogin').onclick = async () => {
-        try { await signInWithEmailAndPassword(auth, document.getElementById('id-email').value, document.getElementById('id-pw').value); } catch(e) { alert("정보가 틀립니다."); }
+        try { await signInWithEmailAndPassword(auth, document.getElementById('id-email').value, document.getElementById('id-pw').value); } catch(e) { alert("로그인 실패!"); }
     };
 
-    // 2. 인증 감시 (승인 대기 처리 포함)
-    onAuthStateChanged(auth, (user) => {
+    onAuthStateChanged(auth, async (user) => {
         if(user) {
-            uid = user.uid;
-            onSnapshot(doc(db, "users", uid), (s) => {
-                if(s.exists()) {
-                    uData = s.data();
-                    document.getElementById('auth-page').classList.add('hidden');
-                    if(!uData.approved) {
-                        document.getElementById('waiting-page').classList.remove('hidden');
-                        document.getElementById('main-app').classList.add('hidden');
-                    } else {
-                        document.getElementById('waiting-page').classList.add('hidden');
-                        document.getElementById('main-app').classList.remove('hidden');
-                        document.getElementById('teamNameDisp').innerText = uData.team;
-                        document.getElementById('my-backnum').value = uData.backnum || "";
-                        if(uData.role === 'manager') {
-                            document.querySelectorAll('.mgr-only').forEach(e => e.style.display = 'block');
-                            loadRequests();
-                        }
-                        initRealtime();
-                    }
-                }
-            });
+            uid = user.uid; const s = await getDoc(doc(db, "users", uid));
+            if(s.exists()) {
+                uData = s.data(); if(!uData.approved) { alert("승인 대기 중"); signOut(auth); return; }
+                document.getElementById('auth-page').classList.add('hidden');
+                document.getElementById('main-app').classList.remove('hidden');
+                document.getElementById('teamNameDisp').innerText = uData.team;
+                if(uData.role === 'manager') { document.querySelectorAll('.mgr-only').forEach(el => el.style.display = 'block'); loadRequests(); }
+                document.getElementById('my-backnum').value = uData.backnum || "";
+                initRealtime();
+            }
         }
     });
 
-    // 3. 실시간 동기화 (일정, 게시판, 팀원, 라인업)
     function initRealtime() {
         onSnapshot(query(collection(db, "sch"), where("team", "==", uData.team), orderBy("date", "asc")), (snaps) => {
             const list = document.getElementById('schedule-list'); list.innerHTML = "";
-            const today = new Date().toISOString().split('T')[0];
-            snaps.forEach(d => { if(d.data().date >= today) list.innerHTML += `<div class="req-item"><b>${d.data().date}</b> | ${d.data().text}</div>`; });
+            snaps.forEach(d => { list.innerHTML += `<div style="padding:8px; border-left:4px solid var(--a); margin-bottom:5px; background:#fff;"><b>${d.data().date}</b>: ${d.data().text}</div>`; });
         });
-
         onSnapshot(query(collection(db, "board"), where("team", "==", uData.team), orderBy("time", "desc")), (snaps) => {
             const list = document.getElementById('board-list'); list.innerHTML = "";
-            const limit = Date.now() - (3 * 24 * 60 * 60 * 1000);
-            snaps.forEach(d => { if(d.data().time > limit) list.innerHTML += `<div style="padding:10px; border-bottom:1px solid #eee;"><b>${d.data().name}</b>: ${d.data().msg}</div>`; });
+            snaps.forEach(d => { list.innerHTML += `<div style="padding:10px; border-bottom:1px solid #eee;"><b>${d.data().name}</b>: ${d.data().msg}</div>`; });
         });
-
         onSnapshot(query(collection(db, "users"), where("team", "==", uData.team), where("approved", "==", true)), (snaps) => {
             const hL = document.getElementById('h-list'), pL = document.getElementById('p-list'), uL = document.getElementById('player-list');
             hL.innerHTML = ""; pL.innerHTML = ""; uL.innerHTML = "";
             snaps.forEach(d => {
-                const p = d.data();
-                hL.innerHTML += `<tr><td>${p.backnum}</td><td>${p.name}</td><td>${(p.hit/(p.ab||1)).toFixed(3)}</td><td>${((p.hit+p.bb)/(p.ab+p.bb||1)).toFixed(3)}</td><td>${p.hit}</td></tr>`;
-                pL.innerHTML += `<tr><td>${p.backnum}</td><td>${p.name}</td><td>${((p.p_er*7)/(p.p_ip||1)).toFixed(2)}</td><td>${p.p_win}</td><td>${p.p_k}</td></tr>`;
+                const p = d.data(); 
+                const avg = p.ab > 0 ? (p.hit / p.ab).toFixed(3) : ".000";
+                const obp = p.ab > 0 ? ((p.hit + (p.bb || 0)) / p.ab).toFixed(3) : ".000";
+                const era = p.p_ip > 0 ? ((p.p_er * 7) / p.p_ip).toFixed(2) : "0.00";
                 
-                // 선수단 관리 UI (방출/승진 버튼 포함)
-                let mgrBtns = "";
+                hL.innerHTML += `<tr><td>${p.backnum||'-'}</td><td>${p.name}</td><td>${avg}</td><td>${obp}</td><td>${p.hit}</td><td>${p.hr}</td></tr>`;
+                pL.innerHTML += `<tr><td>${p.backnum||'-'}</td><td>${p.name}</td><td>${era}</td><td>${p.p_win}</td><td>${p.p_k||0}</td><td>${p.p_ip}</td></tr>`;
+                
+                // 감독 전용 관리 버튼 (방출, 승진/강등)
+                let adminControls = "";
                 if(uData.role === 'manager' && d.id !== uid) {
-                    mgrBtns = `<div>
-                        <button onclick="changeRole('${d.id}', 'manager')" style="background:var(--p); color:white; border:none; padding:5px; border-radius:4px; font-size:10px;">감독승격</button>
-                        <button onclick="kickUser('${d.id}')" style="background:var(--a); color:white; border:none; padding:5px; border-radius:4px; font-size:10px;">방출</button>
-                    </div>`;
+                    const roleAction = p.role === 'player' ? 'coach' : 'player';
+                    const roleLabel = p.role === 'player' ? '코치 승진' : '선수 강등';
+                    adminControls = `
+                        <div style="display:flex; gap:5px;">
+                            <button onclick="changeRole('${d.id}', '${roleAction}')" style="background:#0747a6; color:white; border:none; padding:4px 8px; border-radius:5px; font-size:10px;">${roleLabel}</button>
+                            <button onclick="kickUser('${d.id}')" style="background:var(--a); color:white; border:none; padding:4px 8px; border-radius:5px; font-size:10px;">방출</button>
+                        </div>`;
                 }
-                uL.innerHTML += `<div class="req-item">No.${p.backnum} <b>${p.name}</b> ${mgrBtns}</div>`;
+                const roleBadge = p.role === 'manager' ? '[감독]' : (p.role === 'coach' ? '[코치]' : '');
+                uL.innerHTML += `<div class="req-item"><div>No.${p.backnum || '??'} <b>${p.name}</b> <small>${roleBadge}</small></div>${adminControls}</div>`;
             });
         });
-
         onSnapshot(query(collection(db, "lineup"), where("team", "==", uData.team)), (snaps) => {
             document.querySelectorAll('.player-node p').forEach(p => p.innerText = "-");
-            snaps.forEach(d => { const l = d.data(); const el = document.getElementById('txt-'+l.pos); if(el) el.innerText = l.name; });
+            snaps.forEach(d => { const l = d.data(); const el = document.getElementById('txt-' + l.pos); if(el) el.innerText = l.name; });
         });
     }
 
-    // 4. 감독 전용: 승인/방출/승격 로직
+    window.kickUser = async (targetUid) => {
+        if(confirm("정말 이 팀원을 방출하시겠습니까?")) {
+            await deleteDoc(doc(db, "users", targetUid));
+            alert("방출 완료");
+        }
+    };
+
+    window.changeRole = async (targetUid, newRole) => {
+        const msg = newRole === 'coach' ? "코치로 승진시키겠습니까?" : "선수로 강등시키겠습니까?";
+        if(confirm(msg)) {
+            await updateDoc(doc(db, "users", targetUid), { role: newRole });
+            alert("권한 변경 완료");
+        }
+    };
+
+    window.switchSubTab = (type) => {
+        document.getElementById('sub-board-view').classList.toggle('hidden', type !== 'board');
+        document.getElementById('sub-chat-list-view').classList.toggle('hidden', type !== 'chat');
+        document.getElementById('sub-chat-room-view').classList.add('hidden');
+        document.getElementById('btn-sub-board').classList.toggle('active', type === 'board');
+        document.getElementById('btn-sub-chat').classList.toggle('active', type === 'chat');
+        if(type === 'chat') loadChatUserList();
+    };
+
+    async function loadChatUserList() {
+        const listDiv = document.getElementById('chat-user-list'); listDiv.innerHTML = "";
+        const snaps = await getDocs(query(collection(db, "users"), where("team", "==", uData.team), where("approved", "==", true)));
+        snaps.forEach(d => {
+            if(d.id === uid) return;
+            const user = d.data();
+            const item = document.createElement('div'); item.className = "req-item"; item.style.cursor = "pointer";
+            item.innerHTML = `<div><b>${user.name}</b> (${user.role === 'manager' ? '감독' : '선수'})</div><span class="material-icons">chevron_right</span>`;
+            item.onclick = () => openChatRoom(d.id, user.name);
+            listDiv.appendChild(item);
+        });
+    }
+
+    window.openChatRoom = (pid, pname) => {
+        currentChatPartnerId = pid;
+        document.getElementById('chat-target-name').innerText = pname + " 님";
+        document.getElementById('sub-chat-list-view').classList.add('hidden');
+        document.getElementById('sub-chat-room-view').classList.remove('hidden');
+        if(chatUnsub) chatUnsub();
+        chatUnsub = onSnapshot(query(collection(db, "chats"), where("team", "==", uData.team), orderBy("time", "asc")), (snaps) => {
+            const list = document.getElementById('chat-list'); list.innerHTML = "";
+            snaps.forEach(d => {
+                const c = d.data();
+                if((c.sender === uid && c.receiver === currentChatPartnerId) || (c.sender === currentChatPartnerId && c.receiver === uid)) {
+                    list.innerHTML += `<div class="msg ${c.sender === uid ? 'me' : 'you'}"><div class="msg-info">${c.name}</div>${c.msg}</div>`;
+                }
+            });
+            list.scrollTop = list.scrollHeight;
+        });
+    };
+    window.closeChatRoom = () => { document.getElementById('sub-chat-room-view').classList.add('hidden'); document.getElementById('sub-chat-list-view').classList.remove('hidden'); };
+
+    document.getElementById('btnChatSend').onclick = async () => {
+        const msg = document.getElementById('chat-input').value; if(!msg) return;
+        await addDoc(collection(db, "chats"), { team: uData.team, sender: uid, receiver: currentChatPartnerId, name: uData.name, msg, time: Date.now() });
+        document.getElementById('chat-input').value = "";
+    };
+
     function loadRequests() {
         onSnapshot(query(collection(db, "users"), where("team", "==", uData.team), where("approved", "==", false)), (snaps) => {
-            const list = document.getElementById('request-list'), card = document.getElementById('mgr-req-card');
-            if(snaps.empty) { card.style.display = 'none'; return; }
-            card.style.display = 'block'; list.innerHTML = "";
+            const list = document.getElementById('request-list'); list.innerHTML = "";
             snaps.forEach(d => {
-                list.innerHTML += `<div class="req-item"><span>${d.data().name}</span><div>
-                    <button class="btn" style="background:#2e7d32; width:auto; padding:5px 10px;" onclick="handleApp(true,'${d.id}')">승인</button>
-                    <button class="btn" style="background:#666; width:auto; padding:5px 10px;" onclick="handleApp(false,'${d.id}')">거절</button>
+                const r = d.data(); list.innerHTML += `<div class="req-item"><span>${r.name}</span><div>
+                    <button onclick="handleApprove('${d.id}', true)" style="background:#2e7d32; color:white; border:none; padding:5px 10px; border-radius:5px;">승인</button>
+                    <button onclick="handleApprove('${d.id}', false)" style="background:#666; color:white; border:none; padding:5px 10px; border-radius:5px;">거절</button>
                 </div></div>`;
             });
         });
     }
-    window.handleApp = async (ok, tid) => { if(ok) await updateDoc(doc(db,"users",tid),{approved:true}); else await deleteDoc(doc(db,"users",tid)); };
-    window.kickUser = async (tid) => { if(confirm("정말 방출하시겠습니까?")) await deleteDoc(doc(db,"users",tid)); };
-    window.changeRole = async (tid, newRole) => { if(confirm("이 선수에게 감독 권한을 주겠습니까?")) await updateDoc(doc(db,"users",tid),{role:newRole}); };
-
-    // 5. 기록 수정 저장 (핵심 복구)
-    window.openMyStat = () => { ['ab','hit','bb','hr','p_er','p_ip','p_win','p_k'].forEach(f => document.getElementById('m-'+f).value = uData[f]||0); document.getElementById('stat-modal').classList.remove('hidden'); };
+    window.handleApprove = async (id, ok) => { if(ok) await updateDoc(doc(db, "users", id), { approved: true }); else await deleteDoc(doc(db, "users", id)); };
+    document.getElementById('btnAddSch').onclick = async () => { await addDoc(collection(db, "sch"), { team: uData.team, date: document.getElementById('sch-date').value, text: document.getElementById('sch-text').value }); };
+    document.getElementById('btnPost').onclick = async () => { await addDoc(collection(db, "board"), { team: uData.team, name: uData.name, msg: document.getElementById('board-msg').value, time: Date.now() }); document.getElementById('board-msg').value=""; };
+    document.getElementById('btnUpdateProfile').onclick = async () => { await updateDoc(doc(db, "users", uid), { backnum: document.getElementById('my-backnum').value }); alert("변경됨"); };
+    
+    window.openMyStat = () => { 
+        document.getElementById('m-ab').value = uData.ab || 0; 
+        document.getElementById('m-hit').value = uData.hit || 0; 
+        document.getElementById('m-bb').value = uData.bb || 0;
+        document.getElementById('m-hr').value = uData.hr || 0;
+        document.getElementById('m-p-er').value = uData.p_er || 0; 
+        document.getElementById('m-p-ip').value = uData.p_ip || 0; 
+        document.getElementById('m-p-win').value = uData.p_win || 0;
+        document.getElementById('m-p-k').value = uData.p_k || 0;
+        document.getElementById('stat-modal').classList.remove('hidden'); 
+    };
+    
     document.getElementById('btnUpdateStat').onclick = async () => {
-        const up = {}; ['ab','hit','bb','hr','p_er','p_ip','p_win','p_k'].forEach(f => up[f] = Number(document.getElementById('m-'+f).value));
-        await updateDoc(doc(db, "users", uid), up); alert("기록이 저장되었습니다."); closeModal();
+        const up = { 
+            ab: Number(document.getElementById('m-ab').value), 
+            hit: Number(document.getElementById('m-hit').value), 
+            bb: Number(document.getElementById('m-bb').value),
+            hr: Number(document.getElementById('m-hr').value), 
+            p_er: Number(document.getElementById('m-p-er').value), 
+            p_ip: Number(document.getElementById('m-p-ip').value), 
+            p_win: Number(document.getElementById('m-p-win').value),
+            p_k: Number(document.getElementById('m-p-k').value)
+        };
+        await updateDoc(doc(db, "users", uid), up); uData = {...uData, ...up}; closeModal();
     };
 
-    // 6. 라인업 배치 저장 (핵심 복구)
     document.getElementById('btnAddLineup').onclick = async () => {
         const pos = document.getElementById('l-pos-select').value, name = document.getElementById('l-name').value;
-        if(!name) return alert("선수 이름을 입력하세요.");
         const q = query(collection(db, "lineup"), where("team", "==", uData.team), where("pos", "==", pos));
         const snaps = await getDocs(q); snaps.forEach(async d => await deleteDoc(doc(db, "lineup", d.id)));
         await addDoc(collection(db, "lineup"), { team: uData.team, pos, name });
-        document.getElementById('l-name').value = ""; alert(pos + " 포지션 배치 완료!");
     };
 
-    // 7. 등번호 3자리 중복 방지
-    document.getElementById('btnUpdateProfile').onclick = async () => {
-        const val = document.getElementById('my-backnum').value.trim();
-        if(!val || val.length > 3) return alert("3자리 이하 숫자만 가능!");
-        const inputNum = Number(val);
-        const snaps = await getDocs(query(collection(db, "users"), where("team", "==", uData.team), where("approved", "==", true)));
-        let isDup = false;
-        snaps.forEach(d => { if(d.id !== uid && d.data().backnum !== "" && Number(d.data().backnum) === inputNum) isDup = true; });
-        if(isDup) return alert("이미 사용 중인 번호입니다.");
-        await updateDoc(doc(db, "users", uid), { backnum: val }); alert("저장 완료");
-    };
-
-    // 나머지 UI 로직
-    document.getElementById('btnAddSch').onclick = async () => {
-        const d = document.getElementById('sch-date').value, t = document.getElementById('sch-text').value;
-        if(d && t) await addDoc(collection(db, "sch"), { team: uData.team, date: d, text: t });
-    };
-    document.getElementById('btnPost').onclick = async () => {
-        const m = document.getElementById('board-msg').value;
-        if(m) await addDoc(collection(db, "board"), { team: uData.team, name: uData.name, msg: m, time: Date.now() });
-        document.getElementById('board-msg').value = "";
-    };
-    window.showSec = (id) => { 
-        document.querySelectorAll('.app-sec').forEach(s => s.classList.add('hidden')); 
-        document.getElementById('sec-'+id).classList.remove('hidden'); 
-        document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-        event.currentTarget.classList.add('active');
-    };
-    window.switchSubTab = (t) => {
-        document.getElementById('sub-board-view').classList.toggle('hidden', t!=='board');
-        document.getElementById('sub-chat-list-view').classList.toggle('hidden', t!=='chat');
-        document.getElementById('sub-chat-room-view').classList.add('hidden');
-        if(t==='chat') loadChatUsers();
-    };
-    async function loadChatUsers() {
-        const listDiv = document.getElementById('chat-user-list'); listDiv.innerHTML = "";
-        const ss = await getDocs(query(collection(db,"users"),where("team","==",uData.team),where("approved","==",true)));
-        ss.forEach(d => { if(d.id !== uid) {
-            const div = document.createElement('div'); div.className = "req-item"; div.innerHTML = `<b>${d.data().name}</b>`;
-            div.onclick = () => openChat(d.id, d.data().name); listDiv.appendChild(div);
-        }});
-    }
-    function openChat(pid, pname) {
-        currentChatPartnerId = pid; document.getElementById('chat-target-name').innerText = pname;
-        document.getElementById('sub-chat-list-view').classList.add('hidden'); document.getElementById('sub-chat-room-view').classList.remove('hidden');
-        if(chatUnsub) chatUnsub();
-        chatUnsub = onSnapshot(query(collection(db,"chats"),where("team","==",uData.team),orderBy("time","asc")),(snaps)=>{
-            const list = document.getElementById('chat-list'); list.innerHTML = "";
-            snaps.forEach(d => { const c = d.data();
-                if((c.sender===uid && c.receiver===currentChatPartnerId) || (c.sender===currentChatPartnerId && c.receiver===uid))
-                    list.innerHTML += `<div class="msg ${c.sender===uid?'me':'you'}">${c.msg}</div>`;
-            }); list.scrollTop = list.scrollHeight;
-        });
-    }
-    document.getElementById('btnChatSend').onclick = async () => {
-        const m = document.getElementById('chat-input').value;
-        if(m) await addDoc(collection(db,"chats"),{team:uData.team, sender:uid, receiver:currentChatPartnerId, msg:m, time:Date.now()});
-        document.getElementById('chat-input').value = "";
-    };
-    window.closeChatRoom = () => { if(chatUnsub) chatUnsub(); document.getElementById('sub-chat-room-view').classList.add('hidden'); document.getElementById('sub-chat-list-view').classList.remove('hidden'); };
-    window.changeStatTab = (t) => { document.getElementById('h-table').classList.toggle('hidden',t==='p'); document.getElementById('p-table').classList.toggle('hidden',t==='h'); };
+    window.showSec = (id) => { document.querySelectorAll('.app-sec').forEach(s => s.classList.add('hidden')); document.getElementById('sec-' + id).classList.remove('hidden'); document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active')); event.currentTarget.classList.add('active'); };
+    window.changeStatTab = (t) => { document.getElementById('h-table').classList.toggle('hidden', t === 'p'); document.getElementById('p-table').classList.toggle('hidden', t === 'h'); document.getElementById('btn-tab-h').classList.toggle('active', t === 'h'); document.getElementById('btn-tab-p').classList.toggle('active', t === 'p'); };
     window.closeModal = () => document.getElementById('stat-modal').classList.add('hidden');
-    document.getElementById('btn-logout-icon').onclick = () => signOut(auth).then(()=>location.reload());
+    document.getElementById('btn-logout-icon').onclick = () => signOut(auth).then(() => location.reload());
 </script>
 </body>
 </html>
