@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GS MASTER - FINAL VERSION</title>
+    <title>GS MASTER - FINAL</title>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <style>
         :root { --p: #072754; --a: #d31145; --bg: #f4f7f6; }
@@ -30,7 +30,6 @@
         .field-container { position: relative; width: 100%; aspect-ratio: 1/1; background: #2e7d32; border-radius: 10px; border: 3px solid #fff; }
         .player-node { position: absolute; width: 45px; height: 45px; background: white; border: 2px solid var(--p); border-radius: 50%; display: flex; flex-direction: column; align-items: center; justify-content: center; font-size: 8px; font-weight: bold; transform: translate(-50%, -50%); }
         
-        /* 승인 대기 화면 스타일 */
         #waiting-page { text-align: center; padding: 50px 20px; }
         .waiting-icon { font-size: 60px; color: var(--a); margin-bottom: 20px; }
     </style>
@@ -60,9 +59,8 @@
     <div class="card">
         <span class="material-icons waiting-icon">hourglass_empty</span>
         <h2>가입 승인 대기 중</h2>
-        <p>감독님의 승인이 완료되면<br>자동으로 서비스가 시작됩니다.</p>
-        <button class="btn" style="background:#666; margin-top:20px;" onclick="location.reload()">새로고침 확인</button>
-        <button class="btn" style="background:#eee; color:#333; margin-top:10px;" id="btnWaitLogout">다른 계정으로 로그인</button>
+        <p>감독님이 승인하시면 메인 화면으로 이동합니다.</p>
+        <button class="btn" style="background:#666; margin-top:20px;" id="btnWaitLogout">다른 계정 로그인</button>
     </div>
 </div>
 
@@ -151,10 +149,10 @@
 
     <section id="sec-players" class="app-sec hidden">
         <div class="card" style="border:2px solid var(--p);">
-            <h3>👤 내 정보</h3>
+            <h3>👤 내 정보 관리</h3>
             <div style="display:flex; gap:10px;">
-                <input type="number" id="my-backnum" placeholder="등번호" style="width:100px; margin:0;">
-                <button class="btn" style="background:var(--p); margin:0;" id="btnUpdateProfile">저장</button>
+                <input type="number" id="my-backnum" placeholder="번호(3자리)" maxlength="3" oninput="if(this.value.length > 3) this.value = this.value.slice(0, 3);" style="width:120px; margin:0;">
+                <button class="btn" style="background:var(--p); margin:0;" id="btnUpdateProfile">번호 저장</button>
             </div>
         </div>
         <div class="card"><h3>👥 팀 멤버</h3><div id="player-list"></div></div>
@@ -171,21 +169,21 @@
 
 <div id="stat-modal" class="hidden" style="position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; display:flex; justify-content:center; align-items:center;">
     <div class="card" style="width:90%;">
-        <h3>내 기록 입력</h3>
+        <h3>기록 입력</h3>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:5px;">
             <input type="number" id="m-ab" placeholder="타수"> <input type="number" id="m-hit" placeholder="안타">
             <input type="number" id="m-bb" placeholder="볼넷"> <input type="number" id="m-hr" placeholder="홈런">
             <input type="number" id="m-p-er" placeholder="자책"> <input type="number" id="m-p-ip" placeholder="이닝">
             <input type="number" id="m-p-win" placeholder="승"> <input type="number" id="m-p-k" placeholder="삼진">
         </div>
-        <button class="btn" style="background:var(--p);" id="btnUpdateStat">저장하기</button>
+        <button class="btn" style="background:var(--p);" id="btnUpdateStat">저장</button>
         <button class="btn" style="background:#666;" onclick="closeModal()">취소</button>
     </div>
 </div>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-    import { getFirestore, doc, getDoc, setDoc, collection, addDoc, query, where, orderBy, onSnapshot, deleteDoc, getDocs, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, collection, addDoc, query, where, orderBy, onSnapshot, deleteDoc, getDocs, updateDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
     import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
     const firebaseConfig = { 
@@ -201,33 +199,29 @@
 
     window.toggleAuth = () => { document.getElementById('login-box').classList.toggle('hidden'); document.getElementById('join-box').classList.toggle('hidden'); };
 
-    // 가입 요청
     document.getElementById('btnJoin').onclick = async () => {
         const name = document.getElementById('join-name').value, email = document.getElementById('join-email').value, pw = document.getElementById('join-pw').value, team = document.getElementById('join-team').value, role = document.getElementById('join-role').value;
-        if(!name || !email || !pw || !team) return alert("필수 입력!");
+        if(!name || !email || !pw || !team) return alert("빈칸을 채워주세요.");
         try {
             const uc = await createUserWithEmailAndPassword(auth, email, pw);
-            await setDoc(doc(db, "users", uc.user.uid), { name, email, team, role, approved: (role === 'manager'), ab:0, hit:0, bb:0, hr:0, p_er:0, p_ip:0, p_win:0, p_k:0, backnum:"" });
-            alert("가입 요청 완료! 감독님의 승인을 기다려주세요.");
+            await setDoc(doc(db, "users", uc.user.uid), { name, email, team, role, approved: (role === 'manager'), backnum: "", ab:0, hit:0, bb:0, hr:0, p_er:0, p_ip:0, p_win:0, p_k:0 });
+            alert("가입 요청 완료! 승인을 기다려주세요.");
             location.reload();
         } catch(e) { alert(e.message); }
     };
 
-    // 로그인
     document.getElementById('btnLogin').onclick = async () => {
         try { await signInWithEmailAndPassword(auth, document.getElementById('id-email').value, document.getElementById('id-pw').value); } 
         catch(e) { alert("로그인 실패"); }
     };
 
-    onAuthStateChanged(auth, async (user) => {
+    onAuthStateChanged(auth, (user) => {
         if(user) {
             uid = user.uid;
             onSnapshot(doc(db, "users", uid), (s) => {
                 if(s.exists()) {
                     uData = s.data();
                     document.getElementById('auth-page').classList.add('hidden');
-                    
-                    // 승인 여부에 따른 화면 분기
                     if(!uData.approved) {
                         document.getElementById('waiting-page').classList.remove('hidden');
                         document.getElementById('main-app').classList.add('hidden');
@@ -246,51 +240,60 @@
         }
     });
 
-    // 실시간 데이터
     function initRealtime() {
-        // [일정] 지난 날짜 필터링
+        // 일정 (오늘 이후)
         onSnapshot(query(collection(db, "sch"), where("team", "==", uData.team), orderBy("date", "asc")), (snaps) => {
             const list = document.getElementById('schedule-list'); list.innerHTML = "";
             const today = new Date().toISOString().split('T')[0];
-            snaps.forEach(d => {
-                const s = d.data();
-                if(s.date >= today) {
-                    list.innerHTML += `<div class="req-item"><b>${s.date}</b> | ${s.text}</div>`;
-                }
-            });
+            snaps.forEach(d => { const s = d.data(); if(s.date >= today) list.innerHTML += `<div class="req-item"><b>${s.date}</b> | ${s.text}</div>`; });
         });
 
-        // [게시판] 3일 필터링
+        // 게시판 (3일 이내)
         onSnapshot(query(collection(db, "board"), where("team", "==", uData.team), orderBy("time", "desc")), (snaps) => {
             const list = document.getElementById('board-list'); list.innerHTML = "";
             const limit = Date.now() - (3 * 24 * 60 * 60 * 1000);
-            snaps.forEach(d => {
-                const b = d.data();
-                if(b.time > limit) list.innerHTML += `<div style="padding:10px; border-bottom:1px solid #eee;"><b>${b.name}</b>: ${b.msg}</div>`;
-            });
+            snaps.forEach(d => { const b = d.data(); if(b.time > limit) list.innerHTML += `<div style="padding:10px; border-bottom:1px solid #eee;"><b>${b.name}</b>: ${b.msg}</div>`; });
         });
 
-        // [팀원 및 기록]
+        // 팀원 및 기록
         onSnapshot(query(collection(db, "users"), where("team", "==", uData.team), where("approved", "==", true)), (snaps) => {
             const hL = document.getElementById('h-list'), pL = document.getElementById('p-list'), uL = document.getElementById('player-list');
             hL.innerHTML = ""; pL.innerHTML = ""; uL.innerHTML = "";
             snaps.forEach(d => {
                 const p = d.data();
-                const ba = (p.hit/(p.ab||1)).toFixed(3);
-                hL.innerHTML += `<tr><td>${p.backnum}</td><td>${p.name}</td><td>${ba}</td><td>${((p.hit+p.bb)/(p.ab+p.bb||1)).toFixed(3)}</td><td>${p.hit}</td></tr>`;
+                hL.innerHTML += `<tr><td>${p.backnum}</td><td>${p.name}</td><td>${(p.hit/(p.ab||1)).toFixed(3)}</td><td>${((p.hit+p.bb)/(p.ab+p.bb||1)).toFixed(3)}</td><td>${p.hit}</td></tr>`;
                 pL.innerHTML += `<tr><td>${p.backnum}</td><td>${p.name}</td><td>${((p.p_er*7)/(p.p_ip||1)).toFixed(2)}</td><td>${p.p_win}</td><td>${p.p_k}</td></tr>`;
-                uL.innerHTML += `<div class="req-item">No.${p.backnum} <b>${p.name}</b> (${p.role})</div>`;
+                uL.innerHTML += `<div class="req-item">No.${p.backnum} <b>${p.name}</b></div>`;
             });
         });
 
-        // [라인업]
         onSnapshot(query(collection(db, "lineup"), where("team", "==", uData.team)), (snaps) => {
             document.querySelectorAll('.player-node p').forEach(p => p.innerText = "-");
             snaps.forEach(d => { const l = d.data(); const el = document.getElementById('txt-'+l.pos); if(el) el.innerText = l.name; });
         });
     }
 
-    // 감독용 가입 승인 로직
+    // 등번호 중복 방지 + 3자리 제한 로직
+    document.getElementById('btnUpdateProfile').onclick = async () => {
+        const val = document.getElementById('my-backnum').value.trim();
+        if(!val) return alert("번호를 입력하세요.");
+        
+        // 3자리 제한 검증 (한번 더 체크)
+        if(val.length > 3 || Number(val) > 999) return alert("등번호는 최대 3자리(999)까지만 가능합니다.");
+
+        const inputNum = Number(val);
+        const snaps = await getDocs(query(collection(db, "users"), where("team", "==", uData.team), where("approved", "==", true)));
+        let isDup = false;
+        snaps.forEach(d => {
+            if(d.id !== uid && d.data().backnum !== "" && Number(d.data().backnum) === inputNum) isDup = true;
+        });
+
+        if(isDup) return alert("이미 사용 중인 번호입니다.");
+        await updateDoc(doc(db, "users", uid), { backnum: val });
+        alert("번호가 저장되었습니다.");
+    };
+
+    // 감독 승인 대기 명단
     function loadRequests() {
         onSnapshot(query(collection(db, "users"), where("team", "==", uData.team), where("approved", "==", false)), (snaps) => {
             const list = document.getElementById('request-list'); list.innerHTML = "";
@@ -298,8 +301,7 @@
             if(snaps.empty) { card.style.display = 'none'; return; }
             card.style.display = 'block';
             snaps.forEach(d => {
-                const r = d.data();
-                list.innerHTML += `<div class="req-item"><span>${r.name}</span><div>
+                list.innerHTML += `<div class="req-item"><span>${d.data().name}</span><div>
                     <button class="btn" style="background:#2e7d32; width:auto; padding:5px 10px;" onclick="handleApp(true,'${d.id}')">승인</button>
                     <button class="btn" style="background:#666; width:auto; padding:5px 10px;" onclick="handleApp(false,'${d.id}')">거절</button>
                 </div></div>`;
@@ -308,52 +310,21 @@
     }
     window.handleApp = async (ok, tid) => { if(ok) await updateDoc(doc(db,"users",tid),{approved:true}); else await deleteDoc(doc(db,"users",tid)); };
 
-    // 등번호 중복 체크 (3 vs 03 방지)
-    document.getElementById('btnUpdateProfile').onclick = async () => {
-        const val = document.getElementById('my-backnum').value.trim();
-        if(!val) return alert("번호 입력!");
-        const inputNum = Number(val);
-        
-        const snaps = await getDocs(query(collection(db, "users"), where("team", "==", uData.team), where("approved", "==", true)));
-        let isDup = false;
-        snaps.forEach(d => {
-            if(d.id !== uid && d.data().backnum !== "" && Number(d.data().backnum) === inputNum) isDup = true;
-        });
-
-        if(isDup) return alert("팀내 동일한 번호(예: 3과 03은 같음)가 이미 있습니다.");
-        await updateDoc(doc(db, "users", uid), { backnum: val });
-        alert("저장 완료");
-    };
-
-    // 공통 기능 (팀명 변경, 글쓰기, 일정추가, 로그아웃 등)
-    window.editTeamName = async () => {
-        if(uData.role !== 'manager') return;
-        const nt = prompt("새 팀명:", uData.team);
-        if(nt && nt !== uData.team) {
-            const ss = await getDocs(query(collection(db,"users"),where("team","==",uData.team)));
-            ss.forEach(async d => await updateDoc(doc(db,"users",d.id), {team: nt}));
-        }
-    };
-
+    // 나머지 공통 로직
     document.getElementById('btnAddSch').onclick = async () => {
         const d = document.getElementById('sch-date').value, t = document.getElementById('sch-text').value;
         if(d && t) await addDoc(collection(db, "sch"), { team: uData.team, date: d, text: t });
     };
-
     document.getElementById('btnPost').onclick = async () => {
         const m = document.getElementById('board-msg').value;
         if(m) await addDoc(collection(db, "board"), { team: uData.team, name: uData.name, msg: m, time: Date.now() });
         document.getElementById('board-msg').value = "";
     };
-
-    // 기록 수정
     window.openMyStat = () => { ['ab','hit','bb','hr','p_er','p_ip','p_win','p_k'].forEach(f => document.getElementById('m-'+f).value = uData[f]||0); document.getElementById('stat-modal').classList.remove('hidden'); };
     document.getElementById('btnUpdateStat').onclick = async () => {
         const up = {}; ['ab','hit','bb','hr','p_er','p_ip','p_win','p_k'].forEach(f => up[f] = Number(document.getElementById('m-'+f).value));
         await updateDoc(doc(db, "users", uid), up); closeModal();
     };
-
-    // 섹션 전환 및 기타
     window.showSec = (id) => { 
         document.querySelectorAll('.app-sec').forEach(s => s.classList.add('hidden')); 
         document.getElementById('sec-'+id).classList.remove('hidden'); 
@@ -371,9 +342,8 @@
         const ss = await getDocs(query(collection(db,"users"),where("team","==",uData.team),where("approved","==",true)));
         ss.forEach(d => {
             if(d.id === uid) return;
-            const u = d.data();
-            const div = document.createElement('div'); div.className = "req-item"; div.innerHTML = `<b>${u.name}</b>`;
-            div.onclick = () => openChat(d.id, u.name);
+            const div = document.createElement('div'); div.className = "req-item"; div.innerHTML = `<b>${d.data().name}</b>`;
+            div.onclick = () => openChat(d.id, d.data().name);
             listDiv.appendChild(div);
         });
     }
